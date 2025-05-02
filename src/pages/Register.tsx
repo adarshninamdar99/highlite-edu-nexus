@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -20,9 +19,73 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+// Define the form validation schema with Zod
+const registerSchema = z.object({
+  userType: z.string().min(1, { message: 'Please select a user type' }),
+  firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
+  lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
+  terms: z.literal(true, {
+    errorMap: () => ({ message: 'You must agree to the terms and conditions' }),
+  }),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register: React.FC = () => {
-  const [userType, setUserType] = useState<string>("student");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const { toast } = useToast();
+  
+  // Initialize the form with React Hook Form and Zod resolver
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      userType: "student",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      terms: false,
+    },
+  });
+
+  // Form submission handler
+  const onSubmit = (data: RegisterFormValues) => {
+    // Future API call would go here to register the user
+    console.log('Form submitted:', data);
+    
+    toast({
+      title: "Account created",
+      description: "Your account has been created successfully!",
+      duration: 5000,
+    });
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -42,70 +105,166 @@ const Register: React.FC = () => {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-highlite-primary">Sign up</CardTitle>
-            <CardDescription>Enter your information to create an account</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="userType">I am a</Label>
-              <Select value={userType} onValueChange={setUserType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select user type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="college">College</SelectItem>
-                  <SelectItem value="employer">Employer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <Input id="firstName" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <Input id="lastName" />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
-            </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-highlite-primary">Sign up</CardTitle>
+                <CardDescription>Enter your information to create an account</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="userType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>I am a</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select user type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="student">Student</SelectItem>
+                          <SelectItem value="college">College</SelectItem>
+                          <SelectItem value="employer">Employer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="name@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••" 
+                            {...field} 
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                            onClick={togglePasswordVisibility}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" />
-              <label
-                htmlFor="terms"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I agree to the{" "}
-                <Link to="/terms" className="text-highlite-accent hover:underline">
-                  terms of service
-                </Link>
-                {" "}and{" "}
-                <Link to="/privacy" className="text-highlite-accent hover:underline">
-                  privacy policy
-                </Link>
-              </label>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full bg-highlite-accent hover:bg-highlite-light">
-              Create Account
-            </Button>
-          </CardFooter>
-        </Card>
+                {form.formState.errors.password && (
+                  <Alert variant="destructive" className="text-sm py-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Password must be at least 8 characters and contain uppercase, lowercase, and numbers
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="terms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium leading-none cursor-pointer">
+                          I agree to the{" "}
+                          <Link to="/terms" className="text-highlite-accent hover:underline">
+                            terms of service
+                          </Link>
+                          {" "}and{" "}
+                          <Link to="/privacy" className="text-highlite-accent hover:underline">
+                            privacy policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  type="submit"
+                  className="w-full bg-highlite-accent hover:bg-highlite-light"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
+                </Button>
+              </CardFooter>
+            </Card>
+          </form>
+        </Form>
 
         <div className="mt-6">
           <div className="relative">
