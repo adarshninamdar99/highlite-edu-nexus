@@ -5,192 +5,174 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import ResumeEditor from '@/components/resume/ResumeEditor';
+import ATSAnalyzer from '@/components/resume/ATSAnalyzer';
+import ResumeTemplates from '@/components/resume/ResumeTemplates';
+import ResumeUploader from '@/components/resume/ResumeUploader';
 import {
   FileText,
-  Upload,
   Download,
-  Edit,
   CheckCircle,
   AlertTriangle,
   PenLine,
-  Plus
+  UploadCloud,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Info,
+  Award
 } from 'lucide-react';
 
 const ResumeBuilder: React.FC = () => {
   const [activeTab, setActiveTab] = useState("builder");
+  const [resumeData, setResumeData] = useState({
+    personalInfo: {
+      name: "John Doe",
+      email: "john.doe@example.com",
+      phone: "(123) 456-7890",
+      location: "New York, NY"
+    },
+    summary: "Experienced frontend developer with 5+ years of expertise in building responsive web applications using React, TypeScript, and modern CSS frameworks. Passionate about creating intuitive user interfaces and optimizing web performance.",
+    experience: [
+      {
+        role: "Senior Frontend Developer",
+        company: "TechCorp Inc.",
+        period: "2020 - Present",
+        accomplishments: [
+          "Led the development of company's flagship product using React and TypeScript",
+          "Improved application performance by 40% through code optimization",
+          "Mentored junior developers and conducted code reviews"
+        ]
+      },
+      {
+        role: "Frontend Developer",
+        company: "WebSolutions",
+        period: "2017 - 2020",
+        accomplishments: [
+          "Developed responsive web applications for various clients",
+          "Collaborated with design team to implement UI/UX improvements"
+        ]
+      }
+    ],
+    education: [],
+    skills: ["React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Redux", "Tailwind CSS", "Git", "Webpack", "Jest", "Node.js", "UI/UX Design"]
+  });
   
-  const resumeScore = 85;
-  const resumeImprovements = [
-    { title: "Add more quantifiable achievements", status: "warning" },
-    { title: "Customize for the job description", status: "warning" },
-    { title: "Highlight relevant technical skills", status: "success" },
-    { title: "Improve summary section", status: "success" }
-  ];
+  const [atsScore, setAtsScore] = useState(85);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [resumeImprovements, setResumeImprovements] = useState([
+    { title: "Add more quantifiable achievements", status: "warning", details: "Include metrics and numbers to showcase your impact" },
+    { title: "Customize for the job description", status: "warning", details: "Tailor your resume to match the specific job requirements" },
+    { title: "Highlight relevant technical skills", status: "success", details: "Your technical skills are well highlighted" },
+    { title: "Improve summary section", status: "success", details: "Your summary effectively communicates your experience and focus" }
+  ]);
+  
+  const { toast } = useToast();
+
+  const handleDataUpdate = (section: string, data: any) => {
+    setResumeData({
+      ...resumeData,
+      [section]: data
+    });
+  };
+
+  const analyzeResume = () => {
+    setIsAnalyzing(true);
+    toast({
+      title: "Analyzing Resume",
+      description: "Our AI is analyzing your resume against ATS requirements...",
+    });
+    
+    // Simulate analysis
+    setTimeout(() => {
+      const newScore = Math.floor(Math.random() * 15) + 75; // Random score between 75-90
+      setAtsScore(newScore);
+      
+      // Update improvements based on score
+      const updatedImprovements = [...resumeImprovements];
+      if (newScore > 85) {
+        updatedImprovements[0].status = "success";
+        updatedImprovements[0].details = "Great job including quantifiable achievements!";
+      }
+      
+      setResumeImprovements(updatedImprovements);
+      setIsAnalyzing(false);
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Your resume scored ${newScore}% against ATS systems.`,
+      });
+    }, 3000);
+  };
+
+  const downloadResume = () => {
+    toast({
+      title: "Resume Downloaded",
+      description: "Your resume has been exported as PDF.",
+    });
+  };
+  
+  const saveResumeDraft = () => {
+    toast({
+      title: "Draft Saved",
+      description: "Your resume draft has been saved successfully.",
+    });
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-3xl font-bold text-highlite-primary">Resume Builder</h1>
         <p className="text-gray-600 mt-2">Create, analyze, and optimize your resume with AI assistance</p>
       </div>
       
-      <div className="border p-4 rounded-lg bg-highlite-extralight bg-opacity-20">
+      <div className="bg-gradient-to-r from-highlite-extralight to-highlite-extralight/20 p-4 rounded-lg shadow-sm">
         <div className="flex items-center space-x-4">
           <div className="bg-highlite-accent rounded-full p-3">
             <FileText className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h3 className="font-medium text-highlite-primary">AI Resume Analysis</h3>
+            <h3 className="font-medium text-highlite-primary">AI-Powered Resume Builder</h3>
             <p className="text-sm text-gray-600">Our AI analyzes your resume against thousands of successful resumes and job descriptions to help you stand out.</p>
           </div>
+          <Button variant="outline" className="ml-auto" onClick={() => window.open('#', '_blank')}>
+            <Info className="mr-2 h-4 w-4" /> Learn More
+          </Button>
         </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="builder">Resume Builder</TabsTrigger>
-          <TabsTrigger value="upload">Upload & Analyze</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-highlite-extralight bg-opacity-20">
+          <TabsTrigger value="builder" className="data-[state=active]:bg-highlite-accent data-[state=active]:text-white">
+            Resume Builder
+          </TabsTrigger>
+          <TabsTrigger value="upload" className="data-[state=active]:bg-highlite-accent data-[state=active]:text-white">
+            Upload & Analyze
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="data-[state=active]:bg-highlite-accent data-[state=active]:text-white">
+            Templates
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="builder" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="border-highlite-extralight shadow-md hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>Build Your Resume</CardTitle>
                   <CardDescription>Fill in your details section by section</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <div className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium flex items-center">
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          Personal Information
-                        </h3>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-gray-500">Name:</span>
-                          <span className="ml-2">John Doe</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Phone:</span>
-                          <span className="ml-2">(123) 456-7890</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Email:</span>
-                          <span className="ml-2">john.doe@example.com</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Location:</span>
-                          <span className="ml-2">New York, NY</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium flex items-center">
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          Professional Summary
-                        </h3>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm">Experienced frontend developer with 5+ years of expertise in building responsive web applications using React, TypeScript, and modern CSS frameworks. Passionate about creating intuitive user interfaces and optimizing web performance.</p>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium flex items-center">
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          Work Experience
-                        </h3>
-                        <Button variant="ghost" size="sm">
-                          <Plus className="h-4 w-4 mr-1" /> Add
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <div className="border-l-2 border-highlite-accent pl-4 py-1">
-                          <div className="flex justify-between">
-                            <h4 className="font-medium text-highlite-primary">Senior Frontend Developer</h4>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-gray-600">TechCorp Inc. • 2020 - Present</p>
-                          <ul className="list-disc list-inside text-sm mt-2 space-y-1 text-gray-600">
-                            <li>Led the development of company's flagship product using React and TypeScript</li>
-                            <li>Improved application performance by 40% through code optimization</li>
-                            <li>Mentored junior developers and conducted code reviews</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="border-l-2 border-gray-300 pl-4 py-1">
-                          <div className="flex justify-between">
-                            <h4 className="font-medium">Frontend Developer</h4>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-gray-600">WebSolutions • 2017 - 2020</p>
-                          <ul className="list-disc list-inside text-sm mt-2 space-y-1 text-gray-600">
-                            <li>Developed responsive web applications for various clients</li>
-                            <li>Collaborated with design team to implement UI/UX improvements</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium flex items-center">
-                          <AlertTriangle className="mr-2 h-4 w-4 text-yellow-500" />
-                          Education
-                        </h3>
-                        <Button variant="ghost" size="sm">
-                          <Plus className="h-4 w-4 mr-1" /> Add
-                        </Button>
-                      </div>
-                      <div className="text-center p-4">
-                        <PenLine className="h-12 w-12 mx-auto text-gray-400" />
-                        <p className="mt-2 text-gray-600 text-sm">Add your educational background</p>
-                        <Button className="mt-4 bg-highlite-accent hover:bg-highlite-light">
-                          Add Education
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium flex items-center">
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          Skills
-                        </h3>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {["React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Redux", "Tailwind CSS", "Git", "Webpack", "Jest", "Node.js", "UI/UX Design"].map((skill, index) => (
-                          <span key={index} className="inline-flex items-center rounded-full bg-highlite-extralight px-2.5 py-0.5 text-xs font-medium text-highlite-primary">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <ResumeEditor 
+                    resumeData={resumeData} 
+                    onUpdate={handleDataUpdate} 
+                  />
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline">Save Draft</Button>
-                  <Button className="bg-highlite-accent hover:bg-highlite-light">
+                  <Button variant="outline" onClick={saveResumeDraft}>Save Draft</Button>
+                  <Button className="bg-highlite-accent hover:bg-highlite-light" onClick={downloadResume}>
                     <Download className="mr-2 h-4 w-4" /> Export PDF
                   </Button>
                 </CardFooter>
@@ -198,42 +180,18 @@ const ResumeBuilder: React.FC = () => {
             </div>
             
             <div>
-              <Card>
+              <Card className="border-highlite-extralight shadow-md">
                 <CardHeader>
-                  <CardTitle>Resume Score</CardTitle>
+                  <CardTitle>ATS Score</CardTitle>
                   <CardDescription>AI-powered analysis of your resume</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center rounded-full border-8 border-highlite-extralight p-4 h-32 w-32">
-                      <span className="text-3xl font-bold text-highlite-accent">{resumeScore}%</span>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-600">Your resume is looking good!</p>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <h3 className="font-medium mb-4">Suggested Improvements</h3>
-                    <ul className="space-y-3">
-                      {resumeImprovements.map((item, index) => (
-                        <li key={index} className="flex items-start">
-                          {item.status === "success" ? (
-                            <CheckCircle className="mr-2 h-4 w-4 text-green-500 mt-0.5" />
-                          ) : (
-                            <AlertTriangle className="mr-2 h-4 w-4 text-yellow-500 mt-0.5" />
-                          )}
-                          <span className="text-sm">{item.title}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <Button className="w-full bg-highlite-accent hover:bg-highlite-light">
-                    Get AI Suggestions
-                  </Button>
+                  <ATSAnalyzer 
+                    score={atsScore} 
+                    improvements={resumeImprovements} 
+                    isAnalyzing={isAnalyzing} 
+                    onAnalyze={analyzeResume} 
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -241,44 +199,11 @@ const ResumeBuilder: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="upload" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Your Resume</CardTitle>
-              <CardDescription>Upload your existing resume for AI analysis and optimization</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center items-center">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center w-full max-w-md">
-                <Upload className="h-12 w-12 mx-auto text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Upload your resume</h3>
-                <p className="mt-1 text-xs text-gray-500">PDF, DOCX or TXT up to 5MB</p>
-                <div className="mt-6">
-                  <Button className="bg-highlite-accent hover:bg-highlite-light">
-                    <Upload className="mr-2 h-4 w-4" /> Select File
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ResumeUploader />
         </TabsContent>
         
         <TabsContent value="templates" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((_, index) => (
-              <Card key={index} className="overflow-hidden">
-                <div className="aspect-[3/4] bg-gray-100 relative">
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                    <FileText className="h-12 w-12" />
-                  </div>
-                </div>
-                <CardFooter className="justify-between p-4">
-                  <span className="font-medium">Template {index + 1}</span>
-                  <Button size="sm" className="bg-highlite-accent hover:bg-highlite-light">
-                    Use
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          <ResumeTemplates />
         </TabsContent>
       </Tabs>
     </div>
