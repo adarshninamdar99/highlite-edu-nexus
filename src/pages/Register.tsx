@@ -30,9 +30,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import StudentForm from '@/components/registration/StudentForm';
+import CollegeForm from '@/components/registration/CollegeForm';
+import EmployerForm from '@/components/registration/EmployerForm';
 
 // Define the form validation schema with Zod
 const registerSchema = z.object({
@@ -56,6 +59,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const { toast } = useToast();
   
   // Initialize the form with React Hook Form and Zod resolver
@@ -70,6 +74,21 @@ const Register: React.FC = () => {
       terms: false,
     },
   });
+
+  const userType = form.watch('userType');
+
+  // Handle next step
+  const handleNextStep = async () => {
+    const result = await form.trigger(['userType', 'firstName', 'lastName', 'email', 'password', 'terms']);
+    if (result) {
+      setCurrentStep(2);
+    }
+  };
+
+  // Handle back
+  const handleBack = () => {
+    setCurrentStep(1);
+  };
 
   // Form submission handler
   const onSubmit = (data: RegisterFormValues) => {
@@ -87,7 +106,165 @@ const Register: React.FC = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-  
+
+  // Render step-specific content
+  const renderStepContent = () => {
+    if (currentStep === 1) {
+      return (
+        <CardContent className="space-y-4">
+          <FormField
+            control={form.control}
+            name="userType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>I am a</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select user type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="college">College</SelectItem>
+                    <SelectItem value="employer">Employer</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="name@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••" 
+                      {...field} 
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {form.formState.errors.password && (
+            <Alert variant="destructive" className="text-sm py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Password must be at least 8 characters and contain uppercase, lowercase, and numbers
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <FormField
+            control={form.control}
+            name="terms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium leading-none cursor-pointer">
+                    I agree to the{" "}
+                    <Link to="/terms" className="text-highlite-accent hover:underline">
+                      terms of service
+                    </Link>
+                    {" "}and{" "}
+                    <Link to="/privacy" className="text-highlite-accent hover:underline">
+                      privacy policy
+                    </Link>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      );
+    } else {
+      // Step 2: User-specific form
+      return (
+        <CardContent>
+          {userType === 'student' && <StudentForm form={form} />}
+          {userType === 'college' && <CollegeForm form={form} />}
+          {userType === 'employer' && <EmployerForm form={form} />}
+        </CardContent>
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -104,164 +281,58 @@ const Register: React.FC = () => {
               Sign in
             </Link>
           </p>
+          <div className="flex items-center justify-center mt-4">
+            <span className="text-sm text-gray-500">
+              Step {currentStep} of 2
+            </span>
+          </div>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-highlite-primary">Sign up</CardTitle>
-                <CardDescription>Enter your information to create an account</CardDescription>
+                <CardTitle className="text-highlite-primary flex items-center">
+                  {currentStep === 2 && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={handleBack} 
+                      className="mr-2" 
+                      type="button"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {currentStep === 1 ? 'Sign up' : 'Complete your profile'}
+                </CardTitle>
+                <CardDescription>
+                  {currentStep === 1 
+                    ? 'Enter your information to create an account' 
+                    : `Please provide additional information as a ${userType}`}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="userType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>I am a</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select user type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="student">Student</SelectItem>
-                          <SelectItem value="college">College</SelectItem>
-                          <SelectItem value="employer">Employer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="name@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••" 
-                            {...field} 
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                            onClick={togglePasswordVisibility}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {form.formState.errors.password && (
-                  <Alert variant="destructive" className="text-sm py-2">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Password must be at least 8 characters and contain uppercase, lowercase, and numbers
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="terms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-medium leading-none cursor-pointer">
-                          I agree to the{" "}
-                          <Link to="/terms" className="text-highlite-accent hover:underline">
-                            terms of service
-                          </Link>
-                          {" "}and{" "}
-                          <Link to="/privacy" className="text-highlite-accent hover:underline">
-                            privacy policy
-                          </Link>
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+              
+              {renderStepContent()}
+              
               <CardFooter>
-                <Button 
-                  type="submit"
-                  className="w-full bg-highlite-accent hover:bg-highlite-light"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
-                </Button>
+                {currentStep === 1 ? (
+                  <Button 
+                    type="button"
+                    className="w-full bg-highlite-accent hover:bg-highlite-light"
+                    onClick={handleNextStep}
+                  >
+                    Continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit"
+                    className="w-full bg-highlite-accent hover:bg-highlite-light"
+                    disabled={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           </form>
