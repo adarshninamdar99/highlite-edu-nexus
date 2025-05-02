@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -523,7 +522,14 @@ const Courses = () => {
 
   const handleEnroll = (courseId) => {
     setCourses(courses.map(course => 
-      course.id === courseId ? { ...course, enrolled: true, progress: 0 } : course
+      course.id === courseId ? { 
+        ...course, 
+        enrolled: true, 
+        progress: 0,
+        nextLesson: "Introduction to the Course",
+        nextLessonTime: "30 min",
+        lastAccessed: "Just now"
+      } : course
     ));
     
     toast({
