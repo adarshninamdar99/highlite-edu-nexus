@@ -29,7 +29,7 @@ const studentLinks: SidebarLink[] = [
   { 
     icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
     label: 'Dashboard',
-    href: '/dashboard'
+    href: '/student-dashboard'
   },
   {
     icon: <Video className="mr-2 h-5 w-5" />,
@@ -96,7 +96,21 @@ const employerLinks: SidebarLink[] = [
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const location = useLocation();
-  const userType = "student"; // Placeholder - will come from auth context later
+  // This would typically come from auth context or user state
+  // For demo purposes, we'll determine based on the current route
+  const getCurrentUserType = () => {
+    if (location.pathname.includes('student')) {
+      return 'student';
+    } else if (location.pathname.includes('employer')) {
+      return 'employer';
+    } else if (location.pathname.includes('college')) {
+      return 'college';
+    }
+    // Default to student if unknown
+    return 'student';
+  };
+  
+  const userType = getCurrentUserType();
   
   const links = userType === "student" 
     ? studentLinks 
@@ -118,6 +132,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       
       <nav className="space-y-6 pt-6">
         <div className="space-y-1">
+          <div className="mb-4 px-2 py-1">
+            <div className="rounded-md bg-muted px-3 py-2">
+              <p className="font-medium text-sm">
+                {userType === 'student' ? 'Student Portal' : 
+                 userType === 'employer' ? 'Employer Portal' : 
+                 'College Portal'}
+              </p>
+            </div>
+          </div>
           <p className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Main Navigation
           </p>
@@ -135,6 +158,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               </Button>
             </Link>
           ))}
+        </div>
+        
+        {/* User Type Switcher - for demo purposes */}
+        <div className="space-y-1 border-t pt-4 mt-6">
+          <p className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Switch Portal
+          </p>
+          <Link to="/student-dashboard">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+            >
+              <GraduationCap className="mr-2 h-5 w-5" />
+              Student View
+            </Button>
+          </Link>
+          <Link to="/employer-dashboard">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+            >
+              <Building className="mr-2 h-5 w-5" />
+              Employer View
+            </Button>
+          </Link>
+          <Link to="/college-dashboard">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+            >
+              <School className="mr-2 h-5 w-5" />
+              College View
+            </Button>
+          </Link>
         </div>
       </nav>
     </div>

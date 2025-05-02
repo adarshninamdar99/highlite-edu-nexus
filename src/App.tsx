@@ -9,6 +9,9 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import EmployerDashboard from "./pages/EmployerDashboard";
+import CollegeDashboard from "./pages/CollegeDashboard";
 import MockInterviews from "./pages/MockInterviews";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import NotFound from "./pages/NotFound";
@@ -27,6 +30,9 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+            <Route path="/college-dashboard" element={<CollegeDashboard />} />
             <Route path="/mock-interviews" element={<MockInterviews />} />
             <Route path="/resume-builder" element={<ResumeBuilder />} />
           </Route>
