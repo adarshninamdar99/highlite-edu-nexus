@@ -14,6 +14,8 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import CollegeDashboard from "./pages/CollegeDashboard";
 import MockInterviews from "./pages/MockInterviews";
 import ResumeBuilder from "./pages/ResumeBuilder";
+import Courses from "./pages/Courses";
+import Assignments from "./pages/Assignments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/college-dashboard" element={<CollegeDashboard />} />
             <Route path="/mock-interviews" element={<MockInterviews />} />
             <Route path="/resume-builder" element={<ResumeBuilder />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/assignments" element={<Assignments />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

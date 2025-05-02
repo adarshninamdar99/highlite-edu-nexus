@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -12,7 +11,13 @@ import {
   Users, 
   Code, 
   School,
-  Building
+  Building,
+  BookOpen,
+  ClipboardList,
+  Award,
+  Calendar,
+  MessageSquare,
+  Settings
 } from 'lucide-react';
 
 interface SidebarLink {
@@ -30,6 +35,16 @@ const studentLinks: SidebarLink[] = [
     icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
     label: 'Dashboard',
     href: '/student-dashboard'
+  },
+  {
+    icon: <BookOpen className="mr-2 h-5 w-5" />,
+    label: 'My Courses',
+    href: '/courses'
+  },
+  {
+    icon: <ClipboardList className="mr-2 h-5 w-5" />,
+    label: 'Assignments',
+    href: '/assignments'
   },
   {
     icon: <Video className="mr-2 h-5 w-5" />,
@@ -52,9 +67,14 @@ const studentLinks: SidebarLink[] = [
     href: '/coding-labs'
   },
   {
-    icon: <GraduationCap className="mr-2 h-5 w-5" />,
-    label: 'Courses',
-    href: '/courses'
+    icon: <Calendar className="mr-2 h-5 w-5" />,
+    label: 'Schedule',
+    href: '/schedule'
+  },
+  {
+    icon: <Award className="mr-2 h-5 w-5" />,
+    label: 'Certificates',
+    href: '/certificates'
   },
 ];
 
@@ -105,6 +125,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       return 'employer';
     } else if (location.pathname.includes('college')) {
       return 'college';
+    }
+    // Routes like /courses, /assignments should default to student
+    if (['/courses', '/assignments', '/mock-interviews', '/resume-builder'].includes(location.pathname)) {
+      return 'student';
     }
     // Default to student if unknown
     return 'student';
@@ -159,6 +183,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             </Link>
           ))}
         </div>
+        
+        {/* Student Support Links */}
+        {userType === 'student' && (
+          <div className="space-y-1 border-t pt-4">
+            <p className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Support
+            </p>
+            <Link to="/help">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+              >
+                <MessageSquare className="mr-2 h-5 w-5" />
+                Help & Support
+              </Button>
+            </Link>
+            <Link to="/settings">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+              >
+                <Settings className="mr-2 h-5 w-5" />
+                Settings
+              </Button>
+            </Link>
+          </div>
+        )}
         
         {/* User Type Switcher - for demo purposes */}
         <div className="space-y-1 border-t pt-4 mt-6">
