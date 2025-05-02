@@ -15,6 +15,7 @@ import CollegeDashboard from "./pages/CollegeDashboard";
 import MockInterviews from "./pages/MockInterviews";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import Courses from "./pages/Courses";
+import CodingLabs from "./pages/CodingLabs";
 import Assignments from "./pages/Assignments";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/mock-interviews" element={<MockInterviews />} />
             <Route path="/resume-builder" element={<ResumeBuilder />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/coding-labs" element={<CodingLabs />} />
             <Route path="/assignments" element={<Assignments />} />
           </Route>
           <Route path="*" element={<NotFound />} />

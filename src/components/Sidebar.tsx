@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,11 @@ const studentLinks: SidebarLink[] = [
     href: '/assignments'
   },
   {
+    icon: <Code className="mr-2 h-5 w-5" />,
+    label: 'Coding Labs',
+    href: '/coding-labs'
+  },
+  {
     icon: <Video className="mr-2 h-5 w-5" />,
     label: 'Mock Interviews',
     href: '/mock-interviews'
@@ -60,11 +66,6 @@ const studentLinks: SidebarLink[] = [
     icon: <Briefcase className="mr-2 h-5 w-5" />,
     label: 'Job Matches',
     href: '/job-matches'
-  },
-  {
-    icon: <Code className="mr-2 h-5 w-5" />,
-    label: 'Coding Labs',
-    href: '/coding-labs'
   },
   {
     icon: <Calendar className="mr-2 h-5 w-5" />,
