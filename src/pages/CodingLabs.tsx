@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -49,6 +48,7 @@ import {
   Star 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CodeEditor from "@/components/CodeEditor";
 
 type Difficulty = "Easy" | "Medium" | "Hard" | "Expert";
 type Category = "Arrays" | "Strings" | "Dynamic Programming" | "Graphs" | "Trees" | "Math" | "Sorting";
@@ -98,10 +98,13 @@ const categoryColor = {
 };
 
 const CodingLabs: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("problems");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [showProblemDetails, setShowProblemDetails] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<ProgrammingLanguage>("JavaScript");
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Problem | null;
     direction: "ascending" | "descending";
@@ -319,6 +322,7 @@ const CodingLabs: React.FC = () => {
   const handleProblemClick = (problem: Problem) => {
     setSelectedProblem(problem);
     setShowProblemDetails(true);
+    setShowEditor(false);
   };
 
   const handleRegister = (contestId: string) => {
@@ -326,7 +330,20 @@ const CodingLabs: React.FC = () => {
   };
 
   const handleLanguageSelect = (language: ProgrammingLanguage) => {
+    setSelectedLanguage(language);
     toast.success(`Started practicing ${language}`);
+  };
+
+  const handleSolveProblem = () => {
+    setShowEditor(true);
+  };
+
+  const backToProblems = () => {
+    if (showEditor) {
+      setShowEditor(false);
+    } else {
+      setShowProblemDetails(false);
+    }
   };
 
   return (
@@ -337,12 +354,14 @@ const CodingLabs: React.FC = () => {
           <NavigationMenu className="max-w-full">
             <NavigationMenuList className="flex gap-4">
               <NavigationMenuItem>
-                <Link to="/">
-                  <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800 flex items-center gap-2">
-                    <Home className="h-5 w-5" />
-                    <span>Back to Home</span>
-                  </Button>
-                </Link>
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-300 hover:text-white hover:bg-gray-800 flex items-center gap-2"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <Home className="h-5 w-5" />
+                  <span>Back to Dashboard</span>
+                </Button>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink 
@@ -418,17 +437,17 @@ const CodingLabs: React.FC = () => {
 
       {/* Main Content */}
       <div className="container mx-auto py-8 px-4">
-        {/* Problem Detail View */}
-        {showProblemDetails && selectedProblem ? (
+        {/* Code Editor View */}
+        {showEditor && selectedProblem ? (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <Button 
                 variant="outline" 
                 className="border-gray-700 flex items-center gap-2"
-                onClick={() => setShowProblemDetails(false)}
+                onClick={backToProblems}
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Problems
+                Back to Problem
               </Button>
               <div className="flex gap-2">
                 <Badge variant="outline" className={`${difficultyColor[selectedProblem.difficulty]}`}>
@@ -440,104 +459,218 @@ const CodingLabs: React.FC = () => {
               </div>
             </div>
             
-            <Card className="border-gray-800 bg-[#1a1a1a]">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">{selectedProblem.title}</CardTitle>
+            <Card className="border-gray-800 bg-[#1a1a1a] mb-4">
+              <CardHeader className="border-b border-gray-800">
+                <CardTitle className="text-xl text-white">{selectedProblem.title}</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Problem ID: {selectedProblem.id} | Solved by {selectedProblem.solvedBy.toLocaleString()} users | 
-                  Success Rate: {selectedProblem.successRate}%
+                  Solve the problem using {selectedLanguage}
                 </CardDescription>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {selectedProblem.tags?.map(tag => (
-                    <span key={tag} className="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
               </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="description">
-                  <TabsList className="bg-[#2a2a2a] mb-4">
-                    <TabsTrigger value="description">Description</TabsTrigger>
-                    <TabsTrigger value="hints">Hints</TabsTrigger>
-                    <TabsTrigger value="solution">Solution</TabsTrigger>
-                    <TabsTrigger value="submissions">Submissions</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="description">
-                    <div className="prose prose-invert max-w-none">
-                      <h3>Problem Statement</h3>
-                      <p>
-                        This is a detailed description of the {selectedProblem.title} problem. 
-                        It includes the context, constraints, and expected output format.
-                      </p>
-                      <h4>Input Format</h4>
-                      <p>
-                        The first line contains an integer n (1 ≤ n ≤ 10^5), the size of the input.
-                        The second line contains n space-separated integers a₁, a₂, ..., aₙ (1 ≤ aᵢ ≤ 10^9).
-                      </p>
-                      <h4>Output Format</h4>
-                      <p>
-                        Print the result as described in the problem statement.
-                      </p>
-                      <h4>Example</h4>
-                      <pre className="bg-[#2a2a2a] p-4 rounded-md">
-                        <strong>Input:</strong><br />
-                        5<br />
-                        1 2 3 4 5<br /><br />
-                        <strong>Output:</strong><br />
-                        15
-                      </pre>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="hints">
-                    <div className="space-y-4">
-                      <div className="p-4 border border-gray-800 rounded-md">
-                        <h4 className="font-medium mb-2">Hint 1</h4>
-                        <p>Think about using a specific data structure to optimize your solution.</p>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="mt-2 text-highlite-accent"
-                          onClick={() => toast.info("Hint revealed!")}
-                        >
-                          Reveal more
-                        </Button>
-                      </div>
-                      <div className="p-4 border border-gray-800 rounded-md">
-                        <h4 className="font-medium mb-2">Hint 2</h4>
-                        <p>Consider edge cases with empty inputs or duplicates.</p>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="mt-2 text-highlite-accent"
-                          onClick={() => toast.info("Hint revealed!")}
-                        >
-                          Reveal more
-                        </Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="solution">
-                    <div className="space-y-4">
-                      <div className="flex justify-between mb-4">
-                        <h3 className="text-xl font-medium">Solution Approach</h3>
-                        <Button 
-                          variant="outline"
-                          className="border-gray-700 text-highlite-accent"
-                          onClick={() => toast.info("Full solution unlocked!")}
-                        >
-                          Unlock Full Solution
-                        </Button>
-                      </div>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card className="border-gray-800 bg-[#1a1a1a]">
+                <CardHeader className="border-b border-gray-800 pb-2">
+                  <CardTitle className="text-lg text-white">Problem Description</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 max-h-[600px] overflow-y-auto">
+                  <div className="prose prose-invert max-w-none">
+                    <h3>Problem Statement</h3>
+                    <p>
+                      This is a detailed description of the {selectedProblem.title} problem. 
+                      It includes the context, constraints, and expected output format.
+                    </p>
+                    <h4>Input Format</h4>
+                    <p>
+                      The first line contains an integer n (1 ≤ n ≤ 10^5), the size of the input.
+                      The second line contains n space-separated integers a₁, a₂, ..., aₙ (1 ≤ aᵢ ≤ 10^9).
+                    </p>
+                    <h4>Output Format</h4>
+                    <p>
+                      Print the result as described in the problem statement.
+                    </p>
+                    <h4>Example</h4>
+                    <pre className="bg-[#2a2a2a] p-4 rounded-md">
+                      <strong>Input:</strong><br />
+                      5<br />
+                      1 2 3 4 5<br /><br />
+                      <strong>Output:</strong><br />
+                      15
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="flex flex-col">
+                <div className="flex justify-between items-center mb-2 px-2">
+                  <div className="flex gap-2">
+                    {["JavaScript", "Python", "Java", "C++"].map((lang) => (
+                      <Button 
+                        key={lang} 
+                        variant={selectedLanguage === lang ? "default" : "outline"}
+                        size="sm"
+                        className={selectedLanguage === lang ? 
+                          "bg-highlite-accent hover:bg-highlite-light" : 
+                          "border-gray-700 text-gray-400"
+                        }
+                        onClick={() => setSelectedLanguage(lang as ProgrammingLanguage)}
+                      >
+                        {lang}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => toast.success("Code submitted successfully!")}
+                  >
+                    Submit
+                  </Button>
+                </div>
+
+                <Card className="border-gray-800 bg-[#1a1a1a] h-[600px] flex-grow">
+                  <CodeEditor language={selectedLanguage.toLowerCase()} />
+                </Card>
+              </div>
+            </div>
+            
+            <div className="flex justify-between mt-4">
+              <Button 
+                variant="outline" 
+                className="border-gray-700"
+                onClick={() => toast.info("Test cases loaded")}
+              >
+                Run Test Cases
+              </Button>
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => toast.success("Code submitted successfully!")}
+              >
+                Submit Solution
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* Problem Detail View */
+          showProblemDetails && selectedProblem ? (
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <Button 
+                  variant="outline" 
+                  className="border-gray-700 flex items-center gap-2"
+                  onClick={() => setShowProblemDetails(false)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Problems
+                </Button>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className={`${difficultyColor[selectedProblem.difficulty]}`}>
+                    {selectedProblem.difficulty}
+                  </Badge>
+                  <Badge className={`${categoryColor[selectedProblem.category]}`}>
+                    {selectedProblem.category}
+                  </Badge>
+                </div>
+              </div>
+              
+              <Card className="border-gray-800 bg-[#1a1a1a]">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-white">{selectedProblem.title}</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Problem ID: {selectedProblem.id} | Solved by {selectedProblem.solvedBy.toLocaleString()} users | 
+                    Success Rate: {selectedProblem.successRate}%
+                  </CardDescription>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {selectedProblem.tags?.map(tag => (
+                      <span key={tag} className="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="description">
+                    <TabsList className="bg-[#2a2a2a] mb-4">
+                      <TabsTrigger value="description">Description</TabsTrigger>
+                      <TabsTrigger value="hints">Hints</TabsTrigger>
+                      <TabsTrigger value="solution">Solution</TabsTrigger>
+                      <TabsTrigger value="submissions">Submissions</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="description">
                       <div className="prose prose-invert max-w-none">
+                        <h3>Problem Statement</h3>
                         <p>
-                          The key insight to solving this problem efficiently is to use a hash map to 
-                          store elements and their frequencies. This allows for O(n) time complexity.
+                          This is a detailed description of the {selectedProblem.title} problem. 
+                          It includes the context, constraints, and expected output format.
                         </p>
-                        <div className="bg-[#2a2a2a] p-4 rounded-md mt-4">
-                          <pre className="text-gray-300">
-                            <code>
-                              {`// Pseudocode solution
+                        <h4>Input Format</h4>
+                        <p>
+                          The first line contains an integer n (1 ≤ n ≤ 10^5), the size of the input.
+                          The second line contains n space-separated integers a₁, a₂, ..., aₙ (1 ≤ aᵢ ≤ 10^9).
+                        </p>
+                        <h4>Output Format</h4>
+                        <p>
+                          Print the result as described in the problem statement.
+                        </p>
+                        <h4>Example</h4>
+                        <pre className="bg-[#2a2a2a] p-4 rounded-md">
+                          <strong>Input:</strong><br />
+                          5<br />
+                          1 2 3 4 5<br /><br />
+                          <strong>Output:</strong><br />
+                          15
+                        </pre>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="hints">
+                      <div className="space-y-4">
+                        <div className="p-4 border border-gray-800 rounded-md">
+                          <h4 className="font-medium mb-2">Hint 1</h4>
+                          <p>Think about using a specific data structure to optimize your solution.</p>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="mt-2 text-highlite-accent"
+                            onClick={() => toast.info("Hint revealed!")}
+                          >
+                            Reveal more
+                          </Button>
+                        </div>
+                        <div className="p-4 border border-gray-800 rounded-md">
+                          <h4 className="font-medium mb-2">Hint 2</h4>
+                          <p>Consider edge cases with empty inputs or duplicates.</p>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="mt-2 text-highlite-accent"
+                            onClick={() => toast.info("Hint revealed!")}
+                          >
+                            Reveal more
+                          </Button>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="solution">
+                      <div className="space-y-4">
+                        <div className="flex justify-between mb-4">
+                          <h3 className="text-xl font-medium">Solution Approach</h3>
+                          <Button 
+                            variant="outline"
+                            className="border-gray-700 text-highlite-accent"
+                            onClick={() => toast.info("Full solution unlocked!")}
+                          >
+                            Unlock Full Solution
+                          </Button>
+                        </div>
+                        <div className="prose prose-invert max-w-none">
+                          <p>
+                            The key insight to solving this problem efficiently is to use a hash map to 
+                            store elements and their frequencies. This allows for O(n) time complexity.
+                          </p>
+                          <div className="bg-[#2a2a2a] p-4 rounded-md mt-4">
+                            <pre className="text-gray-300">
+                              <code>
+                                {`// Pseudocode solution
 function solve(nums) {
   // Initialize hash map
   let map = new Map();
@@ -553,116 +686,117 @@ function solve(nums) {
   
   return result;
 }`}
-                            </code>
-                          </pre>
+                              </code>
+                            </pre>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="submissions">
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <h3 className="text-xl font-medium">Your Submissions</h3>
-                        <Button 
-                          variant="outline"
-                          className="border-gray-700 text-white"
-                          onClick={() => toast.info("Viewing all submissions")}
-                        >
-                          View All
-                        </Button>
+                    </TabsContent>
+                    <TabsContent value="submissions">
+                      <div className="space-y-4">
+                        <div className="flex justify-between">
+                          <h3 className="text-xl font-medium">Your Submissions</h3>
+                          <Button 
+                            variant="outline"
+                            className="border-gray-700 text-white"
+                            onClick={() => toast.info("Viewing all submissions")}
+                          >
+                            View All
+                          </Button>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
+                                <TableHead className="text-gray-300">Timestamp</TableHead>
+                                <TableHead className="text-gray-300">Language</TableHead>
+                                <TableHead className="text-gray-300">Status</TableHead>
+                                <TableHead className="text-gray-300">Runtime</TableHead>
+                                <TableHead className="text-gray-300">Memory</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
+                                <TableCell>2025-05-02 10:15 AM</TableCell>
+                                <TableCell>Python</TableCell>
+                                <TableCell>
+                                  <Badge className="bg-green-600">Accepted</Badge>
+                                </TableCell>
+                                <TableCell>52 ms</TableCell>
+                                <TableCell>16.2 MB</TableCell>
+                              </TableRow>
+                              <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
+                                <TableCell>2025-05-01 03:42 PM</TableCell>
+                                <TableCell>JavaScript</TableCell>
+                                <TableCell>
+                                  <Badge className="bg-red-600">Time Limit Exceeded</Badge>
+                                </TableCell>
+                                <TableCell>N/A</TableCell>
+                                <TableCell>N/A</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
-                              <TableHead className="text-gray-300">Timestamp</TableHead>
-                              <TableHead className="text-gray-300">Language</TableHead>
-                              <TableHead className="text-gray-300">Status</TableHead>
-                              <TableHead className="text-gray-300">Runtime</TableHead>
-                              <TableHead className="text-gray-300">Memory</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
-                              <TableCell>2025-05-02 10:15 AM</TableCell>
-                              <TableCell>Python</TableCell>
-                              <TableCell>
-                                <Badge className="bg-green-600">Accepted</Badge>
-                              </TableCell>
-                              <TableCell>52 ms</TableCell>
-                              <TableCell>16.2 MB</TableCell>
-                            </TableRow>
-                            <TableRow className="hover:bg-[#2a2a2a] border-gray-800">
-                              <TableCell>2025-05-01 03:42 PM</TableCell>
-                              <TableCell>JavaScript</TableCell>
-                              <TableCell>
-                                <Badge className="bg-red-600">Time Limit Exceeded</Badge>
-                              </TableCell>
-                              <TableCell>N/A</TableCell>
-                              <TableCell>N/A</TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-800 pt-6">
-                <div className="flex gap-2">
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+                <CardFooter className="flex justify-between border-t border-gray-800 pt-6">
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-700"
+                      onClick={() => toast.info("Problem notes saved!")}
+                    >
+                      Save Notes
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-700"
+                      onClick={() => toast.info("Problem bookmarked!")}
+                    >
+                      Bookmark
+                    </Button>
+                  </div>
                   <Button 
-                    variant="outline" 
-                    className="border-gray-700"
-                    onClick={() => toast.info("Problem notes saved!")}
+                    className="bg-highlite-accent hover:bg-highlite-light"
+                    onClick={handleSolveProblem}
                   >
-                    Save Notes
+                    <Code className="mr-2 h-4 w-4" />
+                    Solve Problem
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-gray-700"
-                    onClick={() => toast.info("Problem bookmarked!")}
-                  >
-                    Bookmark
-                  </Button>
-                </div>
-                <Button 
-                  className="bg-highlite-accent hover:bg-highlite-light"
-                  onClick={() => toast.success("Starting code editor...")}
-                >
-                  <Code className="mr-2 h-4 w-4" />
-                  Solve Problem
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        ) : (
-          <>
-            {/* Hero Section */}
-            <div className="mb-12">
-              <h1 className="text-4xl font-bold mb-4">Welcome to Practice!</h1>
-              <p className="text-lg text-gray-300 max-w-4xl">
-                Access 5000+ problems and challenges in coding languages like Python, Java, JavaScript, C++, 
-                and SQL. Start with beginner friendly challenges and solve hard problems as you become 
-                proficient. Use these practice problems and challenges to prove your coding skills.
-              </p>
+                </CardFooter>
+              </Card>
             </div>
-            
-            {/* Search Bar */}
-            <div className="relative mb-8 max-w-xl">
-              <Input
-                type="text"
-                placeholder="Search practice problems, topics, or tags..."
-                className="bg-[#2a2a2a] border-gray-700 rounded-md pl-10 text-white placeholder:text-gray-400"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-          </>
+          ) : (
+            <>
+              {/* Hero Section */}
+              <div className="mb-12">
+                <h1 className="text-4xl font-bold mb-4">Welcome to Practice!</h1>
+                <p className="text-lg text-gray-300 max-w-4xl">
+                  Access 5000+ problems and challenges in coding languages like Python, Java, JavaScript, C++, 
+                  and SQL. Start with beginner friendly challenges and solve hard problems as you become 
+                  proficient. Use these practice problems and challenges to prove your coding skills.
+                </p>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="relative mb-8 max-w-xl">
+                <Input
+                  type="text"
+                  placeholder="Search practice problems, topics, or tags..."
+                  className="bg-[#2a2a2a] border-gray-700 rounded-md pl-10 text-white placeholder:text-gray-400"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              </div>
+            </>
+          )
         )}
         
-        {/* Main Tabs - Only show if not viewing problem details */}
-        {!showProblemDetails && (
+        {/* Main Tabs - Only show if not viewing problem details or editor */}
+        {!showProblemDetails && !showEditor && (
           <Tabs 
             defaultValue={activeTab} 
             className="w-full"
@@ -941,8 +1075,8 @@ function solve(nums) {
           </Tabs>
         )}
         
-        {/* Skills and Progress Section - Only show if not viewing problem details */}
-        {!showProblemDetails && (
+        {/* Skills and Progress Section - Only show if not viewing problem details or editor */}
+        {!showProblemDetails && !showEditor && (
           <div className="mt-12 space-y-8">
             <h2 className="text-2xl font-bold text-white">Your Progress</h2>
             
