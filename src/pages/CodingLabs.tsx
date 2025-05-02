@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -880,21 +879,39 @@ const CodingLabs = () => {
                       <span>Easy</span>
                       <span>2/{easyCount}</span>
                     </div>
-                    <Progress value={(2 / easyCount) * 100} className="h-2 bg-muted" indicatorClassName="bg-green-600" />
+                    <div className="relative w-full">
+                      <Progress value={(2 / easyCount) * 100} className="h-2 bg-muted" />
+                      <div 
+                        className="absolute top-0 left-0 h-2 bg-green-600 rounded-full" 
+                        style={{ width: `${(2 / easyCount) * 100}%` }}
+                      />
+                    </div>
                   </div>
                   <div>
                     <div className="flex justify-between mb-1 text-sm">
                       <span>Medium</span>
                       <span>0/{mediumCount}</span>
                     </div>
-                    <Progress value={0} className="h-2 bg-muted" indicatorClassName="bg-yellow-600" />
+                    <div className="relative w-full">
+                      <Progress value={0} className="h-2 bg-muted" />
+                      <div 
+                        className="absolute top-0 left-0 h-2 bg-yellow-600 rounded-full" 
+                        style={{ width: `0%` }}
+                      />
+                    </div>
                   </div>
                   <div>
                     <div className="flex justify-between mb-1 text-sm">
                       <span>Hard</span>
                       <span>0/{hardCount}</span>
                     </div>
-                    <Progress value={0} className="h-2 bg-muted" indicatorClassName="bg-red-600" />
+                    <div className="relative w-full">
+                      <Progress value={0} className="h-2 bg-muted" />
+                      <div 
+                        className="absolute top-0 left-0 h-2 bg-red-600 rounded-full" 
+                        style={{ width: `0%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>
