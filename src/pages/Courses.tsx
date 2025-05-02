@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { 
   GraduationCap, 
   BookOpen, 
@@ -21,11 +22,20 @@ import {
   Star, 
   Calendar, 
   ChevronRight,
-  Timer
+  Timer,
+  Download,
+  Share2,
+  Bookmark,
+  BookMarked,
+  Play,
+  FileCheck,
+  Clock3,
+  Users,
+  GalleryHorizontal
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Sample course data
+// Sample course data with better images
 const allCourses = [
   {
     id: 1,
@@ -37,12 +47,16 @@ const allCourses = [
     enrolled: true,
     progress: 65,
     instructor: "Sarah Johnson",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
     lessons: 24,
     rating: 4.8,
     nextLesson: "Component Lifecycle",
     nextLessonTime: "45 min",
-    lastAccessed: "2 days ago"
+    lastAccessed: "2 days ago",
+    students: 1248,
+    materials: 18,
+    quizzes: 6,
+    projects: 3
   },
   {
     id: 2,
@@ -54,12 +68,16 @@ const allCourses = [
     enrolled: true,
     progress: 30,
     instructor: "Michael Chen",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
     lessons: 32,
     rating: 4.7,
     nextLesson: "Promises & Async Functions",
     nextLessonTime: "60 min",
-    lastAccessed: "1 day ago"
+    lastAccessed: "1 day ago",
+    students: 987,
+    materials: 24,
+    quizzes: 8,
+    projects: 2
   },
   {
     id: 3,
@@ -71,12 +89,16 @@ const allCourses = [
     enrolled: true,
     progress: 15,
     instructor: "Dr. Patel",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2069&q=80",
     lessons: 40,
     rating: 4.9,
     nextLesson: "Graph Algorithms",
     nextLessonTime: "90 min",
-    lastAccessed: "3 days ago"
+    lastAccessed: "3 days ago",
+    students: 756,
+    materials: 32,
+    quizzes: 10,
+    projects: 5
   },
   {
     id: 4,
@@ -87,9 +109,13 @@ const allCourses = [
     duration: "6 weeks",
     enrolled: false,
     instructor: "Emily Rodriguez",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2831&q=80",
     lessons: 18,
-    rating: 4.6
+    rating: 4.6,
+    students: 582,
+    materials: 14,
+    quizzes: 5,
+    projects: 2
   },
   {
     id: 5,
@@ -100,9 +126,13 @@ const allCourses = [
     duration: "8 weeks",
     enrolled: false,
     instructor: "Dr. James Wilson",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1488229297570-58520851e868?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2069&q=80",
     lessons: 28,
-    rating: 4.5
+    rating: 4.5,
+    students: 1123,
+    materials: 22,
+    quizzes: 7,
+    projects: 1
   },
   {
     id: 6,
@@ -113,22 +143,35 @@ const allCourses = [
     duration: "4 weeks",
     enrolled: false,
     instructor: "Sophia Martinez",
-    image: "https://via.placeholder.com/300x200",
+    image: "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2047&q=80",
     lessons: 16,
-    rating: 4.7
+    rating: 4.7,
+    students: 2456,
+    materials: 12,
+    quizzes: 4,
+    projects: 0
   }
 ];
 
 const categories = ["All", "Web Development", "Data Science", "Computer Science", "Career Development"];
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
-const CourseCard = ({ course, onEnroll, enrolled }) => {
+const CourseCard = ({ course, onEnroll, enrolled, onBookmark }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const cardRef = useRef(null);
 
   // Animated card on hover
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
+  
+  const handleBookmark = (e) => {
+    e.stopPropagation();
+    setIsBookmarked(!isBookmarked);
+    if (onBookmark) {
+      onBookmark(course.id, !isBookmarked);
+    }
+  };
 
   return (
     <motion.div
@@ -147,25 +190,49 @@ const CourseCard = ({ course, onEnroll, enrolled }) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="relative h-48 overflow-hidden">
-          <img 
-            src={course.image} 
-            alt={course.title} 
-            className="w-full h-full object-cover transition-transform duration-500"
-            style={{
-              transform: isHovered ? 'scale(1.05)' : 'scale(1)'
-            }}
-          />
-          <div className="absolute top-3 right-3 flex gap-1">
+        <div className="relative">
+          <AspectRatio ratio={16/9}>
+            <img 
+              src={course.image} 
+              alt={course.title} 
+              className="w-full h-full object-cover transition-transform duration-500"
+              style={{
+                transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+              }}
+            />
+          </AspectRatio>
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             <Badge variant={course.level === "Beginner" ? "outline" : 
                           course.level === "Intermediate" ? "secondary" : "default"}>
               {course.level}
             </Badge>
+            <Badge variant="outline" className="bg-black/60 text-white border-0">
+              <Clock3 className="mr-1 h-3 w-3" /> {course.duration}
+            </Badge>
+          </div>
+          <div className="absolute top-3 right-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full bg-white/80 hover:bg-white"
+              onClick={handleBookmark}
+            >
+              {isBookmarked ? 
+                <BookMarked className="h-4 w-4 text-highlite-accent fill-highlite-accent" /> : 
+                <Bookmark className="h-4 w-4" />
+              }
+            </Button>
           </div>
           {course.rating && (
             <div className="absolute bottom-3 left-3 bg-black/70 text-white px-2 py-1 rounded-md flex items-center text-xs">
               <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
               {course.rating}
+            </div>
+          )}
+          {course.students && (
+            <div className="absolute bottom-3 right-3 bg-black/70 text-white px-2 py-1 rounded-md flex items-center text-xs">
+              <Users className="h-3 w-3 mr-1" />
+              {course.students} students
             </div>
           )}
         </div>
@@ -208,13 +275,30 @@ const CourseCard = ({ course, onEnroll, enrolled }) => {
               </div>
             </div>
           )}
+          
+          {!enrolled && (
+            <div className="grid grid-cols-3 gap-2 mt-3">
+              <div className="text-center p-2 bg-muted/30 rounded-md">
+                <p className="text-xs text-muted-foreground">Materials</p>
+                <p className="font-medium">{course.materials}</p>
+              </div>
+              <div className="text-center p-2 bg-muted/30 rounded-md">
+                <p className="text-xs text-muted-foreground">Quizzes</p>
+                <p className="font-medium">{course.quizzes}</p>
+              </div>
+              <div className="text-center p-2 bg-muted/30 rounded-md">
+                <p className="text-xs text-muted-foreground">Projects</p>
+                <p className="font-medium">{course.projects}</p>
+              </div>
+            </div>
+          )}
         </CardContent>
         
         <CardFooter className="border-t pt-4 bg-muted/30">
           {enrolled ? (
             <Button className="w-full bg-highlite-accent hover:bg-highlite-light">
+              <Play className="h-4 w-4 mr-1 fill-white" />
               Continue Learning
-              <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
             <Button 
@@ -239,12 +323,14 @@ const FeaturedCourse = ({ course, onEnroll }) => {
     >
       <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-r from-highlite-extralight to-highlite-light">
         <div className="md:flex">
-          <div className="md:w-2/5 h-64 md:h-auto">
-            <img 
-              src={course.image} 
-              alt={course.title} 
-              className="w-full h-full object-cover"
-            />
+          <div className="md:w-2/5">
+            <AspectRatio ratio={16/9} className="h-full">
+              <img 
+                src={course.image} 
+                alt={course.title} 
+                className="w-full h-full object-cover"
+              />
+            </AspectRatio>
           </div>
           <div className="p-6 md:w-3/5 flex flex-col justify-between">
             <div>
@@ -299,19 +385,35 @@ const FeaturedCourse = ({ course, onEnroll }) => {
                   <span className="font-medium">{course.progress}%</span>
                 </div>
                 <Progress value={course.progress} className="h-2 mb-4" />
-                <Button className="w-full bg-highlite-accent hover:bg-highlite-light">
-                  Continue Learning
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button className="flex-1 bg-highlite-accent hover:bg-highlite-light">
+                    <Play className="h-4 w-4 mr-1 fill-white" />
+                    Continue
+                  </Button>
+                  <Button variant="outline">
+                    <GalleryHorizontal className="h-4 w-4 mr-1" />
+                    Materials
+                  </Button>
+                </div>
               </div>
             ) : (
-              <Button 
-                size="lg" 
-                className="w-full bg-highlite-accent hover:bg-highlite-light"
-                onClick={() => onEnroll(course.id)}
-              >
-                Enroll Now
-              </Button>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Button 
+                    size="lg" 
+                    className="flex-1 bg-highlite-accent hover:bg-highlite-light"
+                    onClick={() => onEnroll(course.id)}
+                  >
+                    Enroll Now
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Bookmark className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -336,14 +438,14 @@ const LearningPathCard = () => {
               <CheckCircle className="w-3 h-3 text-green-500" />
             </span>
             <h3 className="mb-1 text-sm font-semibold">Frontend Basics</h3>
-            <p className="text-xs text-muted-foreground">Completed on April 13, 2025</p>
+            <p className="text-muted-foreground mb-6">Completed on April 13, 2025</p>
           </li>
           <li className="mb-6 ml-6">
             <span className="absolute flex items-center justify-center w-6 h-6 bg-blue-200 rounded-full -left-3 ring-8 ring-white">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
             </span>
             <h3 className="mb-1 text-sm font-semibold">React Development</h3>
-            <p className="text-xs text-muted-foreground">In progress - 65% complete</p>
+            <p className="text-muted-foreground mb-6">In progress - 65% complete</p>
             <Progress value={65} className="h-1.5 mt-2 w-full max-w-[180px]" />
           </li>
           <li className="ml-6">
@@ -351,7 +453,7 @@ const LearningPathCard = () => {
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
             </span>
             <h3 className="mb-1 text-sm font-semibold">Advanced System Design</h3>
-            <p className="text-xs text-muted-foreground">Starts on May 15, 2025</p>
+            <p className="text-muted-foreground mb-6">Starts on May 15, 2025</p>
           </li>
         </ol>
       </CardContent>
@@ -446,14 +548,16 @@ const InProgressCourses = ({ courses, onEnroll }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/4 h-40 md:h-auto">
-                <img 
-                  src={course.image} 
-                  alt={course.title} 
-                  className="w-full h-full object-cover" 
-                />
+              <div className="w-full md:w-1/4">
+                <AspectRatio ratio={16/9} className="h-full md:h-auto">
+                  <img 
+                    src={course.image} 
+                    alt={course.title} 
+                    className="w-full h-full object-cover" 
+                  />
+                </AspectRatio>
               </div>
               <div className="flex-grow p-4">
                 <div className="flex justify-between items-start mb-2">
@@ -484,7 +588,16 @@ const InProgressCourses = ({ courses, onEnroll }) => {
                       {course.nextLessonTime}
                     </div>
                   </div>
-                  <Button>Continue Learning</Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <FileCheck className="h-4 w-4 mr-1" />
+                      Resources
+                    </Button>
+                    <Button size="sm">
+                      <Play className="h-3 w-3 mr-1 fill-white" />
+                      Continue
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -495,12 +608,108 @@ const InProgressCourses = ({ courses, onEnroll }) => {
   );
 };
 
+// New component: CourseResourceCard
+const CourseResourceCard = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Latest Resources</CardTitle>
+        <CardDescription>Recently added course materials</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-muted rounded-md">
+            <FileText className="h-5 w-5 text-highlite-accent" />
+          </div>
+          <div className="flex-grow">
+            <h4 className="text-sm font-medium">React Design Patterns PDF</h4>
+            <p className="text-xs text-muted-foreground">Added yesterday</p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Download className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-muted rounded-md">
+            <Video className="h-5 w-5 text-highlite-accent" />
+          </div>
+          <div className="flex-grow">
+            <h4 className="text-sm font-medium">Async/Await Masterclass</h4>
+            <p className="text-xs text-muted-foreground">Added 3 days ago</p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Play className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-muted rounded-md">
+            <FileText className="h-5 w-5 text-highlite-accent" />
+          </div>
+          <div className="flex-grow">
+            <h4 className="text-sm font-medium">System Design Cheatsheet</h4>
+            <p className="text-xs text-muted-foreground">Added last week</p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Download className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button variant="outline" className="w-full">View All Resources</Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
+// New component: UpcomingSessionsCard
+const UpcomingSessionsCard = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Upcoming Live Sessions</CardTitle>
+        <CardDescription>Mark your calendar for these events</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="bg-muted/50 p-3 rounded-md">
+          <div className="flex justify-between items-start mb-1">
+            <h4 className="text-sm font-medium">Q&A: React Performance Tips</h4>
+            <Badge variant="outline" className="text-xs">Tomorrow</Badge>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground mb-2">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>May 3, 2025 • 3:00 PM</span>
+          </div>
+          <Button variant="secondary" size="sm" className="w-full">Add to Calendar</Button>
+        </div>
+        
+        <div className="bg-muted/50 p-3 rounded-md">
+          <div className="flex justify-between items-start mb-1">
+            <h4 className="text-sm font-medium">Workshop: Building APIs</h4>
+            <Badge variant="outline" className="text-xs">Next Week</Badge>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground mb-2">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>May 9, 2025 • 2:00 PM</span>
+          </div>
+          <Button variant="secondary" size="sm" className="w-full">Add to Calendar</Button>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button variant="outline" className="w-full">View All Sessions</Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
 const Courses = () => {
   const [courses, setCourses] = useState(allCourses);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeLevel, setActiveLevel] = useState("All Levels");
+  const [bookmarkedCourses, setBookmarkedCourses] = useState<number[]>([]);
   const { toast } = useToast();
 
   // Filter courses based on search, category and level
@@ -537,6 +746,24 @@ const Courses = () => {
       description: "You have been enrolled in this course",
       duration: 3000,
     });
+  };
+
+  const handleBookmark = (courseId, isBookmarked) => {
+    if (isBookmarked) {
+      setBookmarkedCourses([...bookmarkedCourses, courseId]);
+      toast({
+        title: "Course Bookmarked",
+        description: "Added to your saved courses",
+        duration: 1500,
+      });
+    } else {
+      setBookmarkedCourses(bookmarkedCourses.filter(id => id !== courseId));
+      toast({
+        title: "Bookmark Removed",
+        description: "Removed from your saved courses",
+        duration: 1500,
+      });
+    }
   };
 
   // Animation variants for staggered list items
@@ -595,22 +822,29 @@ const Courses = () => {
       {/* Featured Course */}
       <FeaturedCourse course={featuredCourse} onEnroll={handleEnroll} />
 
-      {/* Learning Path and Certificates */}
+      {/* Learning Path, Certificates and Resources */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <LearningPathCard />
         </div>
-        <div className="md:col-span-1 space-y-4">
-          <h3 className="text-xl font-semibold mb-2">Your Certificates</h3>
+        <div className="md:col-span-1">
           <CertificateCard 
             title="React Native Fundamentals" 
             date="April 15, 2025" 
             type="Completed with distinction" 
           />
         </div>
+        <div className="md:col-span-1 space-y-6">
+          <CourseResourceCard />
+        </div>
+      </div>
+      
+      {/* Upcoming Sessions */}
+      <div className="mt-8">
+        <UpcomingSessionsCard />
       </div>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Tabs and Course List */}
       <Tabs defaultValue="all" className="space-y-6" onValueChange={setActiveTab}>
@@ -630,22 +864,25 @@ const Courses = () => {
         />
         
         <TabsContent value="all" className="space-y-6">
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {filteredCourses.map((course) => (
-              <motion.div key={course.id} variants={courseVariants}>
-                <CourseCard 
-                  course={course} 
-                  onEnroll={handleEnroll}
-                  enrolled={course.enrolled}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+          <AnimatePresence>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {filteredCourses.map((course) => (
+                <motion.div key={course.id} variants={courseVariants}>
+                  <CourseCard 
+                    course={course} 
+                    onEnroll={handleEnroll}
+                    enrolled={course.enrolled}
+                    onBookmark={handleBookmark}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
           {filteredCourses.length === 0 && (
             <div className="text-center py-10">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
