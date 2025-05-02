@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -61,6 +61,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Initialize the form with React Hook Form and Zod resolver
   const form = useForm<RegisterFormValues>({
@@ -100,6 +101,21 @@ const Register: React.FC = () => {
       description: "Your account has been created successfully!",
       duration: 5000,
     });
+
+    // Redirect to appropriate dashboard based on user type
+    switch(data.userType) {
+      case 'student':
+        navigate('/student-dashboard');
+        break;
+      case 'employer':
+        navigate('/employer-dashboard');
+        break;
+      case 'college':
+        navigate('/college-dashboard');
+        break;
+      default:
+        navigate('/dashboard');
+    }
   };
 
   // Toggle password visibility
@@ -363,3 +379,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
