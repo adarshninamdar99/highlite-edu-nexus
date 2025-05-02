@@ -127,8 +127,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     } else if (location.pathname.includes('college')) {
       return 'college';
     }
-    // Routes like /courses, /assignments should default to student
-    if (['/courses', '/assignments', '/mock-interviews', '/resume-builder'].includes(location.pathname)) {
+    // Routes like /courses, /assignments, /coding-labs should default to student
+    if (['/courses', '/assignments', '/mock-interviews', '/resume-builder', '/coding-labs'].includes(location.pathname)) {
       return 'student';
     }
     // Default to student if unknown
