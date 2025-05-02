@@ -46,9 +46,10 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must agree to the terms and conditions' }),
-  }),
+  terms: z.boolean()
+    .refine(val => val === true, {
+      message: 'You must agree to the terms and conditions',
+    }),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
