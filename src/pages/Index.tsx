@@ -5,6 +5,8 @@ import Features from '@/components/home/Features';
 import ForWhom from '@/components/home/ForWhom';
 import CallToAction from '@/components/home/CallToAction';
 import Footer from '@/components/home/Footer';
+import SuccessRoadmap from '@/components/home/SuccessRoadmap';
+import ToolBenefits from '@/components/home/ToolBenefits';
 import { 
   Carousel,
   CarouselContent,
@@ -37,8 +39,11 @@ const Index: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Hero />
+      <ToolBenefits />
+      <Features />
+      <SuccessRoadmap />
       <div className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -76,7 +81,6 @@ const Index: React.FC = () => {
           </Carousel>
         </div>
       </div>
-      <Features />
       <ForWhom />
       <CallToAction />
       <Footer />

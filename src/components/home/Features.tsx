@@ -64,7 +64,7 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <div className="py-16 bg-gray-50">
+    <div className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center mb-6">
@@ -83,7 +83,7 @@ const Features: React.FC = () => {
           ))}
         </div>
         
-        <div className="mt-16 bg-highlite-extralight/30 rounded-xl p-8 border border-highlite-extralight">
+        <div className="mt-16 bg-highlite-extralight/10 rounded-xl p-8 border border-highlite-extralight">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/3">
               <div className="relative">

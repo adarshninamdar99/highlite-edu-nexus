@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,8 +6,10 @@ import { Rocket, Star, Lightbulb } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative overflow-hidden">
-      <div className="highlite-gradient-bg absolute inset-0 opacity-10"></div>
+    <div className="relative overflow-hidden bg-white">
+      <div className="absolute inset-0 opacity-5">
+        <div className="highlite-gradient-bg w-full h-full"></div>
+      </div>
       <div className="container relative mx-auto px-4 py-20 sm:py-32 md:flex md:items-center md:justify-between md:py-40">
         <div className="md:w-1/2 space-y-6">
           <div className="inline-flex items-center rounded-full border border-highlite-accent/30 bg-highlite-extralight/30 px-3 py-1 text-sm font-medium text-highlite-accent mb-2">
