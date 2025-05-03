@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import LandingLayout from './components/LandingLayout';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import StudentDashboard from './pages/StudentDashboard';
@@ -23,8 +24,17 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        {/* Landing page with no sidebar */}
+        <Route path="/" element={<LandingLayout />}>
           <Route index element={<Index />} />
+        </Route>
+        
+        {/* Auth pages without layout */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* App pages with sidebar layout */}
+        <Route path="/" element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="student-dashboard" element={<StudentDashboard />} />
           <Route path="college-dashboard" element={<CollegeDashboard />} />
@@ -36,8 +46,6 @@ const App: React.FC = () => {
           <Route path="courses" element={<Courses />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
       </Routes>
       <Toaster />
     </Router>
