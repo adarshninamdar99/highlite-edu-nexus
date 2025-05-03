@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Rocket, Star, LightBulb } from 'lucide-react';
+import { Rocket, Star, Lightbulb } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
@@ -30,7 +29,7 @@ const Hero: React.FC = () => {
             </Link>
             <Link to="/mock-interviews">
               <Button variant="outline" className="text-md flex items-center gap-2">
-                <LightBulb className="h-4 w-4" /> Try Demo Interview
+                <Lightbulb className="h-4 w-4" /> Try Demo Interview
               </Button>
             </Link>
           </div>
@@ -68,7 +67,7 @@ const Hero: React.FC = () => {
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100 flex items-center">
             <div className="bg-highlite-extralight/30 p-2 rounded-full mr-3">
-              <LightBulb className="h-6 w-6 text-highlite-accent" />
+              <Lightbulb className="h-6 w-6 text-highlite-accent" />
             </div>
             <div>
               <p className="font-bold text-highlite-primary">500+</p>
