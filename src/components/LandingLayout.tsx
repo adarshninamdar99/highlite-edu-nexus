@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from './Header';
+import LandingHeader from './LandingHeader';
 
 const LandingLayout: React.FC = () => {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header onMenuToggle={() => {}} /> {/* Empty function since we don't need sidebar toggle */}
+    <div className="min-h-screen flex flex-col bg-white">
+      <LandingHeader />
       <main className="flex-1">
         <Outlet />
       </main>
