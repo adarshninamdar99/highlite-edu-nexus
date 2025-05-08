@@ -1,0 +1,3 @@
+
+This is a placeholder for the Inter_Bold.json font file.
+The actual font file will be loaded at runtime.

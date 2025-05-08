@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
@@ -7,6 +6,7 @@ import CallToAction from '@/components/home/CallToAction';
 import Footer from '@/components/home/Footer';
 import SuccessRoadmap from '@/components/home/SuccessRoadmap';
 import ToolBenefits from '@/components/home/ToolBenefits';
+import Interactive3DFeatures from '@/components/home/Interactive3DFeatures';
 import { 
   Carousel,
   CarouselContent,
@@ -43,7 +43,9 @@ const Index: React.FC = () => {
       <Hero />
       <ToolBenefits />
       <Features />
+      <Interactive3DFeatures />
       <SuccessRoadmap />
+      
       <div className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
