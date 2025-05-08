@@ -1,94 +1,97 @@
 
-import React, { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text3D, Environment } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Layers, FileText, TrendingUp, Code, BarChart } from 'lucide-react';
 
-interface Feature3DProps {
-  position: [number, number, number];
-  text: string;
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
   color: string;
   hoverColor: string;
-  onClick?: () => void;
 }
 
-const Feature3D: React.FC<Feature3DProps> = ({ position, text, color, hoverColor, onClick }) => {
-  const meshRef = useRef<THREE.Mesh>(null!);
-  const [hovered, setHovered] = useState(false);
-  const [active, setActive] = useState(false);
-
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * (hovered ? 0.5 : 0.1);
-      
-      // Gentle floating animation
-      const t = state.clock.getElapsedTime();
-      meshRef.current.position.y = position[1] + Math.sin(t * 0.5) * 0.1;
-    }
-  });
-
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, color, hoverColor }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
-    <group
-      position={position}
-      onClick={(e) => {
-        e.stopPropagation();
-        setActive(!active);
-        if (onClick) onClick();
+    <motion.div 
+      className="flex flex-col items-center justify-center p-6 rounded-xl shadow-md bg-white border border-gray-100 cursor-pointer"
+      initial={{ scale: 1 }}
+      whileHover={{ 
+        scale: 1.05,
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
       }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        setHovered(false);
-      }}
-      scale={active || hovered ? 1.2 : 1}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      onClick={() => setIsHovered(!isHovered)}
     >
-      <mesh ref={meshRef} castShadow>
-        <octahedronGeometry args={[0.8, 0]} />
-        <meshStandardMaterial
-          color={hovered ? hoverColor : color}
-          metalness={0.5}
-          roughness={0.2}
-          emissive={hovered ? hoverColor : "black"}
-          emissiveIntensity={hovered ? 0.4 : 0}
-        />
-      </mesh>
-      <Text3D
-        font="/fonts/Inter_Bold.json"
-        size={0.2}
-        height={0.04}
-        position={[0, -1.5, 0]}
+      <div 
+        className={`p-4 rounded-full mb-4 transition-colors duration-300`}
+        style={{ 
+          backgroundColor: isHovered ? hoverColor : `${color}20`, 
+          color: isHovered ? 'white' : color 
+        }}
       >
-        {text}
-        <meshStandardMaterial 
-          color={hovered ? hoverColor : "white"} 
-          emissive={hovered ? hoverColor : "white"}
-          emissiveIntensity={hovered ? 0.6 : 0.1}
-        />
-      </Text3D>
-    </group>
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      {isHovered && (
+        <motion.div 
+          className="text-gray-600 text-center"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {description}
+        </motion.div>
+      )}
+      {!isHovered && (
+        <p className="text-sm text-gray-500">(Hover/click for details)</p>
+      )}
+    </motion.div>
   );
 };
 
 const Interactive3DFeatures: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
-  
   const features = [
-    { text: "AI Interviews", color: "#0076ff", hoverColor: "#3a95ff" },
-    { text: "Resume Builder", color: "#2C74B3", hoverColor: "#5398dc" },
-    { text: "Job Matching", color: "#205295", hoverColor: "#3a7ac0" },
-    { text: "Coding Labs", color: "#144272", hoverColor: "#205a9e" },
-    { text: "Analytics", color: "#0A2647", hoverColor: "#1a487a" }
-  ];
-  
-  const featureDescriptions = [
-    "Practice with our AI interviewer that provides real-time feedback on your responses.",
-    "Build ATS-friendly resumes with smart suggestions and formatting.",
-    "Get matched with jobs that fit your skills, experience, and preferences.",
-    "Practice coding challenges in our interactive browser-based environment.",
-    "Track your progress with detailed analytics and performance metrics."
+    { 
+      title: "AI Interviews", 
+      description: "Practice with our AI interviewer that provides real-time feedback on your responses.",
+      icon: <Layers size={24} />,
+      color: "#0076ff", 
+      hoverColor: "#3a95ff" 
+    },
+    { 
+      title: "Resume Builder", 
+      description: "Build ATS-friendly resumes with smart suggestions and formatting.",
+      icon: <FileText size={24} />,
+      color: "#2C74B3", 
+      hoverColor: "#5398dc" 
+    },
+    { 
+      title: "Job Matching", 
+      description: "Get matched with jobs that fit your skills, experience, and preferences.",
+      icon: <TrendingUp size={24} />,
+      color: "#205295", 
+      hoverColor: "#3a7ac0" 
+    },
+    { 
+      title: "Coding Labs", 
+      description: "Practice coding challenges in our interactive browser-based environment.",
+      icon: <Code size={24} />,
+      color: "#144272", 
+      hoverColor: "#205a9e" 
+    },
+    { 
+      title: "Analytics", 
+      description: "Track your progress with detailed analytics and performance metrics.",
+      icon: <BarChart size={24} />,
+      color: "#0A2647", 
+      hoverColor: "#1a487a" 
+    }
   ];
 
   return (
@@ -102,64 +105,21 @@ const Interactive3DFeatures: React.FC = () => {
           </div>
           <h2 className="text-4xl font-bold text-highlite-primary mb-4">Explore Our Features</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Hover over each feature to see it in action. Click to learn more.
+            Hover or click on each feature to see it in action.
           </p>
         </div>
         
-        <div className="relative">
-          <div className="aspect-[16/9] w-full max-w-5xl mx-auto bg-gradient-to-br from-gray-100 to-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
-            <Canvas 
-              shadows 
-              camera={{ position: [0, 0, 8], fov: 45 }}
-              dpr={[1, 2]}
-            >
-              <color attach="background" args={['#fcfcfc']} />
-              <ambientLight intensity={0.2} />
-              <spotLight 
-                position={[10, 10, 10]} 
-                angle={0.15} 
-                penumbra={1} 
-                intensity={1} 
-                castShadow 
-              />
-              <Environment preset="city" />
-              
-              {features.map((feature, index) => (
-                <Feature3D 
-                  key={index}
-                  position={[
-                    4 * Math.cos((index / features.length) * Math.PI * 2),
-                    0,
-                    4 * Math.sin((index / features.length) * Math.PI * 2)
-                  ]}
-                  text={feature.text}
-                  color={feature.color}
-                  hoverColor={feature.hoverColor}
-                  onClick={() => setSelectedFeature(index === selectedFeature ? null : index)}
-                />
-              ))}
-              
-              <OrbitControls 
-                enableZoom={false}
-                enablePan={false}
-                rotateSpeed={0.5}
-                autoRotate
-                autoRotateSpeed={0.5}
-              />
-            </Canvas>
-          </div>
-          
-          {selectedFeature !== null && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black/70 backdrop-blur-md text-white px-6 py-4 rounded-lg max-w-md text-center">
-              <p className="text-sm md:text-base">{featureDescriptions[selectedFeature]}</p>
-            </div>
-          )}
-        </div>
-        
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 text-sm italic">
-            Click on a feature to see its description, or drag to rotate the view
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              title={feature.title}
+              description={feature.description}
+              icon={feature.icon}
+              color={feature.color}
+              hoverColor={feature.hoverColor}
+            />
+          ))}
         </div>
       </div>
     </section>

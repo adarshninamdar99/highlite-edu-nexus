@@ -1,0 +1,17 @@
+
+{
+  "glyphs": {
+    "A": {"ha": 667, "x_min": 4, "x_max": 663, "o": "m 333 723 l 453 723 l 663 0 l 545 0 l 488 172 l 179 172 l 122 0 l 4 0 l 333 723 m 213 266 l 454 266 l 334 602 l 213 266 z "},
+    "I": {"ha": 667, "x_min": 195, "x_max": 471, "o": "m 195 0 l 195 723 l 471 723 l 471 613 l 305 613 l 305 110 l 471 110 l 471 0 l 195 0 z "}
+  },
+  "familyName": "Inter",
+  "ascender": 968,
+  "descender": -241,
+  "underlinePosition": -87,
+  "underlineThickness": 58,
+  "boundingBox": {"yMin": -449, "xMin": -210, "yMax": 1003, "xMax": 1507},
+  "resolution": 1000,
+  "original_font_information": {"format": 0, "copyright": "", "fontFamily": "Inter", "fontSubfamily": "Bold"},
+  "cssFontWeight": "bold",
+  "cssFontStyle": "normal"
+}
