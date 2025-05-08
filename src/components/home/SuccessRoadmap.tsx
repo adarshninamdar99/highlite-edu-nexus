@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Check, Award, Book, Calendar, GraduationCap, Briefcase } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SuccessRoadmap: React.FC = () => {
   const roadmapSteps = [
@@ -42,48 +43,120 @@ const SuccessRoadmap: React.FC = () => {
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
   return (
     <div className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center mb-6">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div 
+            className="inline-flex items-center justify-center mb-6"
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", duration: 0.8, delay: 0.2 }}
+          >
             <span className="h-1 w-12 rounded-full bg-highlite-accent mr-2"></span>
             <p className="text-highlite-accent font-medium">YOUR PATH TO SUCCESS</p>
             <span className="h-1 w-12 rounded-full bg-highlite-accent ml-2"></span>
-          </div>
-          <h2 className="text-3xl font-bold text-highlite-primary mb-4">Student Success Roadmap</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          </motion.div>
+          <motion.h2 
+            className="text-3xl font-bold text-highlite-primary mb-4"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            Student Success Roadmap
+          </motion.h2>
+          <motion.p 
+            className="text-lg text-gray-600 max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
             Follow our proven roadmap to transform your career journey from preparation to placement
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         <div className="relative">
           {/* Connecting line */}
           <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 transform -translate-y-1/2 hidden md:block"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
             {roadmapSteps.map((step, index) => (
-              <div key={index} className="relative">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative z-10 h-full border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                  <div className={`${step.color} w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto`}>
+              <motion.div 
+                key={index} 
+                className="relative"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <motion.div 
+                  className="bg-white rounded-lg shadow-lg p-8 relative z-10 h-full border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  <motion.div 
+                    className={`${step.color} w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto`}
+                    whileHover={{ 
+                      rotate: 360,
+                      scale: 1.1,
+                      transition: { duration: 0.8 }
+                    }}
+                  >
                     {step.icon}
-                  </div>
-                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-highlite-accent text-white flex items-center justify-center font-bold">
+                  </motion.div>
+                  <motion.div 
+                    className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-highlite-accent text-white flex items-center justify-center font-bold"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ type: "spring", stiffness: 500, delay: 0.3 + (index * 0.1) }}
+                  >
                     {index + 1}
-                  </div>
+                  </motion.div>
                   <h3 className="text-xl font-bold text-highlite-primary mb-4 text-center">{step.title}</h3>
                   <p className="text-gray-600 text-center">{step.description}</p>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        <div className="text-center mt-12">
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+        >
           <p className="text-lg font-medium text-highlite-accent">
             Join thousands of students who have successfully launched their careers with HighliteX
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
