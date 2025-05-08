@@ -1,17 +1,31 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Rocket, Star, Lightbulb, ArrowRight, Circle } from 'lucide-react';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { Rocket, Star, Lightbulb, ArrowRight, Circle, MoveUp } from 'lucide-react';
+import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLottie } from 'lottie-react';
+import animationData from '@/assets/lottie/hero-animation.json';
 
 const Hero: React.FC = () => {
   const isMobile = useIsMobile();
   const controls = useAnimation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: false, amount: 0.3 });
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const heroTexts = ["future", "dream", "success"];
   const heroColors = ["text-highlite-accent", "text-purple-500", "text-blue-500"];
+  
+  // Lottie animation setup
+  const lottieOptions = {
+    animationData: animationData,
+    loop: true,
+    autoplay: true,
+  };
+  
+  const { View: LottieView } = useLottie(lottieOptions);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,6 +34,12 @@ const Hero: React.FC = () => {
     
     return () => clearInterval(interval);
   }, []);
+  
+  useEffect(() => {
+    if (isInView) {
+      controls.start('visible');
+    }
+  }, [isInView, controls]);
   
   useEffect(() => {
     controls.start({
@@ -34,7 +54,8 @@ const Hero: React.FC = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
+        staggerChildren: 0.2,
+        delayChildren: 0.3
       }
     }
   };
@@ -74,217 +95,378 @@ const Hero: React.FC = () => {
     }
   };
 
+  const imageRevealVariant = {
+    hidden: { clipPath: 'inset(0 100% 0 0)' },
+    visible: { 
+      clipPath: 'inset(0 0% 0 0)',
+      transition: {
+        duration: 1.2,
+        ease: "easeInOut",
+        delay: 0.5
+      }
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden bg-white">
-      {/* Background decorative elements */}
+    <div className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white py-12 md:py-0">
+      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-highlite-extralight/20 to-transparent"></div>
-        <div className="absolute top-[60%] -left-[5%] w-[30%] h-[30%] rounded-full bg-gradient-to-tr from-highlite-extralight/30 to-transparent"></div>
         <motion.div 
-          className="absolute top-[20%] right-[20%] w-8 h-8 rounded-full bg-highlite-accent/20"
-          animate={{ 
-            y: [0, -40, 0],
-            opacity: [0.5, 1, 0.5]
+          animate={{
+            opacity: [0.5, 0.8, 0.5],
+            scale: [1, 1.05, 1],
           }}
-          transition={{ 
-            duration: 5, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
+          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-highlite-extralight/30 to-transparent blur-3xl"
         ></motion.div>
         <motion.div 
-          className="absolute top-[70%] left-[30%] w-6 h-6 rounded-full bg-purple-500/20"
-          animate={{ 
-            y: [0, 30, 0],
-            opacity: [0.3, 0.8, 0.3]
+          animate={{
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.1, 1],
           }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 1
-          }}
+          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse", delay: 1 }}
+          className="absolute top-[60%] -left-[5%] w-[30%] h-[30%] rounded-full bg-gradient-to-tr from-highlite-extralight/40 to-transparent blur-3xl"
         ></motion.div>
+        
+        {/* Dynamic particles */}
+        {[...Array(12)].map((_, index) => (
+          <motion.div 
+            key={index}
+            className={`absolute w-${Math.floor(Math.random() * 3) + 1} h-${Math.floor(Math.random() * 3) + 1} rounded-full ${
+              index % 3 === 0 ? 'bg-highlite-accent/20' : index % 3 === 1 ? 'bg-purple-500/20' : 'bg-blue-500/20'
+            }`}
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+            animate={{ 
+              y: [0, -(Math.random() * 50) - 20, 0],
+              opacity: [0.3, 0.8, 0.3],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ 
+              duration: Math.floor(Math.random() * 5) + 3, 
+              repeat: Infinity, 
+              repeatType: "reverse",
+              delay: Math.random() * 2
+            }}
+          ></motion.div>
+        ))}
       </div>
       
-      <div className="container mx-auto px-4 py-28 md:py-40">
+      <div ref={containerRef} className="container mx-auto px-4 py-28 md:py-40">
         <motion.div 
-          className="max-w-5xl mx-auto text-center space-y-6"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto"
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          animate={isInView ? "visible" : "hidden"}
         >
-          <motion.span 
-            className="inline-block px-4 py-2 text-sm font-medium text-highlite-accent bg-highlite-extralight/30 rounded-full shadow-lg shadow-highlite-extralight/20"
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-          >
-            Introducing HighliteX
-          </motion.span>
-          
-          <motion.h1 
-            className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-highlite-primary"
-            variants={itemVariants}
-          >
-            Prepare for your{' '}
-            <span className="relative inline-block">
-              <AnimatePresence mode="wait">
-                <motion.span 
-                  key={currentIndex} 
-                  className={`${heroColors[currentIndex]}`}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={controls}
-                  exit={{ y: -20, opacity: 0, transition: { duration: 0.3 } }}
-                >
-                  {heroTexts[currentIndex]}
-                </motion.span>
-              </AnimatePresence>
+          {/* Left content - Text */}
+          <motion.div className="flex flex-col justify-center space-y-6 order-2 lg:order-1">
+            <motion.div variants={itemVariants} className="flex items-center">
               <motion.span 
-                className="absolute -bottom-2 left-0 w-full h-1.5 bg-highlite-accent/50 rounded-full"
-                initial={{ scaleX: 0, originX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 1.2, duration: 0.8 }}
-              />
-            </span>{' '}
-            career today
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl text-gray-600 max-w-2xl mx-auto"
-            variants={itemVariants}
-          >
-            AI-powered interview preparation, resume building, and job matching for the next generation of professionals.
-          </motion.p>
-          
-          <motion.div 
-            className="flex flex-wrap justify-center gap-4 pt-6"
-            variants={itemVariants}
-          >
-            <Link to="/register">
-              <Button className="apple-button bg-highlite-accent hover:bg-highlite-light text-white flex items-center gap-2 h-12 px-8 group relative overflow-hidden">
-                <span className="absolute inset-0 w-full h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-                <Rocket className="h-4 w-4 group-hover:rotate-12 transition-transform" /> 
-                <span>Get Started</span>
+                className="inline-block px-5 py-2 text-sm font-medium bg-gradient-to-r from-highlite-accent to-highlite-light text-white rounded-full shadow-lg"
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(32, 82, 149, 0.3)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <motion.span 
+                      className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"
+                      initial={{ opacity: 0.75, scale: 1 }}
+                      animate={{ opacity: 0, scale: 2 }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    ></motion.span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  Introducing HighliteX
+                </span>
+              </motion.span>
+            </motion.div>
+            
+            <motion.h1 
+              variants={itemVariants}
+              className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-highlite-primary"
+            >
+              <span className="inline-block mb-2">Prepare for your</span>{' '}
+              <br className="hidden sm:block" />
+              <span className="relative inline-block">
+                <AnimatePresence mode="wait">
+                  <motion.span 
+                    key={currentIndex} 
+                    className={`${heroColors[currentIndex]}`}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={controls}
+                    exit={{ y: -20, opacity: 0, transition: { duration: 0.3 } }}
+                  >
+                    {heroTexts[currentIndex]}
+                  </motion.span>
+                </AnimatePresence>
+                <motion.span 
+                  className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-highlite-accent via-highlite-light to-highlite-accent/50 rounded-full"
+                  initial={{ scaleX: 0, originX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.2, duration: 1.5, ease: "easeInOut" }}
+                />
+              </span>{' '}
+              <span className="inline-block mt-2">career today</span>
+            </motion.h1>
+            
+            <motion.p 
+              variants={itemVariants}
+              className="text-xl text-gray-600 max-w-xl"
+            >
+              AI-powered interview preparation, resume building, and job matching for the next generation of professionals.
+            </motion.p>
+            
+            <motion.div 
+              variants={itemVariants}
+              className="flex flex-wrap gap-4 pt-6"
+            >
+              <Link to="/register">
                 <motion.div
-                  className="absolute right-4 opacity-0 group-hover:opacity-100"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <ArrowRight size={16} />
+                  <Button className="apple-button bg-gradient-to-r from-highlite-accent to-highlite-light text-white flex items-center gap-2 h-14 px-8 text-lg group relative overflow-hidden">
+                    <span className="absolute inset-0 w-full h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></span>
+                    <Rocket className="h-5 w-5 group-hover:rotate-12 transition-transform" /> 
+                    <span>Get Started</span>
+                    <motion.div
+                      className="absolute right-6 opacity-0 group-hover:opacity-100"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <ArrowRight size={18} />
+                    </motion.div>
+                  </Button>
                 </motion.div>
-              </Button>
-            </Link>
-            <Link to="/mock-interviews">
-              <Button variant="outline" className="apple-button text-highlite-primary border-gray-300 flex items-center gap-2 h-12 px-8 group">
-                <Lightbulb className="h-4 w-4 group-hover:text-highlite-accent transition-colors" /> 
-                <span>Try Demo Interview</span>
-              </Button>
-            </Link>
+              </Link>
+              <Link to="/mock-interviews">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button variant="outline" className="apple-button text-highlite-primary border-2 border-gray-300 hover:border-highlite-accent flex items-center gap-2 h-14 px-8 text-lg group">
+                    <Lightbulb className="h-5 w-5 group-hover:text-highlite-accent transition-colors" /> 
+                    <span>Try Demo Interview</span>
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            <motion.div 
+              variants={itemVariants}
+              className="flex items-center gap-3 pt-8 text-gray-500"
+            >
+              <div className="flex -space-x-2">
+                {[...Array(4)].map((_, i) => (
+                  <motion.img
+                    key={i}
+                    src={`https://randomuser.me/api/portraits/men/${i + 20}.jpg`}
+                    alt={`User ${i}`}
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium">
+                <motion.span 
+                  className="text-highlite-accent"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                >
+                  +2,500
+                </motion.span> professionals joined this week
+              </span>
+            </motion.div>
           </motion.div>
           
+          {/* Right content - Image or animation */}
           <motion.div 
-            className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
+            className="relative flex items-center justify-center order-1 lg:order-2"
+            variants={itemVariants}
           >
+            <motion.div
+              className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl"
+              initial="hidden"
+              animate="visible"
+              variants={imageRevealVariant}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-highlite-accent/20 to-transparent mix-blend-overlay rounded-2xl"></div>
+              
+              <motion.img
+                src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2400&q=80"
+                alt="HighliteX Platform"
+                className="w-full h-full object-cover object-center rounded-2xl"
+                animate={{ 
+                  scale: isHovered ? 1.05 : 1,
+                  filter: isHovered ? "brightness(1.1)" : "brightness(1)"
+                }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              />
+              
+              {/* Interactive elements */}
+              <motion.div 
+                className="absolute top-5 left-5 bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-xl flex items-center gap-3"
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+              >
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <Rocket className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Interview Score</p>
+                  <p className="text-sm font-semibold text-gray-800">95% Success Rate</p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="absolute bottom-5 right-5 bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-xl"
+                animate={{ y: [0, 5, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse", delay: 0.5 }}
+              >
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Based on 10,000+ reviews</p>
+              </motion.div>
+              
+              <motion.div 
+                className="absolute top-1/2 transform -translate-y-1/2 left-0 ml-5 bg-black/70 backdrop-blur-md text-white py-3 px-4 rounded-r-xl"
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 1.2, duration: 0.5 }}
+              >
+                <p className="text-xs uppercase tracking-wider mb-1">Real-time Feedback</p>
+                <div className="flex items-center gap-2">
+                  <motion.div 
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  ></motion.div>
+                  <p className="text-sm font-medium">AI Interview in Progress</p>
+                </div>
+              </motion.div>
+            </motion.div>
+            
+            {/* Floating elements */}
             <motion.div 
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 0 }}
-              className="w-2 h-2 rounded-full bg-highlite-accent"
-            ></motion.div>
-            <motion.div 
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 0.2 }}
-              className="w-2 h-2 rounded-full bg-highlite-accent/80"
-            ></motion.div>
-            <motion.div 
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 0.4 }}
-              className="w-2 h-2 rounded-full bg-highlite-accent/60"
-            ></motion.div>
+              className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-xl backdrop-blur-lg text-highlite-primary px-8 py-4 rounded-full text-sm font-medium border border-highlite-extralight/30 flex items-center gap-3 z-10"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.5, duration: 0.5 }}
+            >
+              <motion.div 
+                className="w-3 h-3 bg-green-500 rounded-full"
+                animate={{ scale: [1, 1.5, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              ></motion.div>
+              Real-time feedback from AI-powered mock interviews
+            </motion.div>
           </motion.div>
         </motion.div>
         
+        {/* Scroll indicator */}
         <motion.div 
-          className="mt-28 relative"
-          initial={{ opacity: 0, y: 50 }}
+          className="absolute left-1/2 bottom-8 transform -translate-x-1/2 flex flex-col items-center gap-2"
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
+          transition={{ delay: 2, duration: 0.5 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white pointer-events-none z-10"></div>
-          
+          <motion.p 
+            className="text-sm text-gray-500 font-medium"
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, repeatType: "mirror" }}
+          >
+            Scroll to explore
+          </motion.p>
           <motion.div
-            className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100"
-            whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)" }}
-            transition={{ duration: 0.3 }}
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 1.2, repeat: Infinity }}
           >
-            <motion.img
-              src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80"
-              alt="HighliteX Platform - Students preparing for interviews"
-              className="w-full h-auto object-cover rounded-2xl shadow-xl mx-auto"
-              whileInView={{ scale: 1, opacity: 1 }}
-              initial={{ scale: 0.9, opacity: 0.6 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-highlite-primary/40 to-transparent rounded-2xl mix-blend-overlay"></div>
-          </motion.div>
-          
-          <motion.div 
-            className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-xl backdrop-blur-lg text-highlite-primary px-8 py-4 rounded-full text-sm md:text-base font-medium border border-highlite-extralight/30 flex items-center gap-3"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-          >
-            <motion.div 
-              className="w-3 h-3 bg-green-500 rounded-full"
-              animate={{ scale: [1, 1.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            ></motion.div>
-            Real-time feedback from AI-powered mock interviews
+            <MoveUp className="text-highlite-accent h-5 w-5" />
           </motion.div>
         </motion.div>
       </div>
       
+      {/* Stats section with enhanced animation */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {[
-            { icon: <Star className="h-6 w-6 text-highlite-accent" />, stat: "10,000+", text: "Successful Placements", i: 0 },
-            { icon: <Lightbulb className="h-6 w-6 text-highlite-accent" />, stat: "500+", text: "Partner Companies", i: 1 },
-            { icon: <Rocket className="h-6 w-6 text-highlite-accent" />, stat: "98%", text: "Student Satisfaction", i: 2 }
+            { icon: <Star className="h-6 w-6 text-white" />, stat: "10,000+", text: "Successful Placements", i: 0, color: "from-highlite-accent to-highlite-light" },
+            { icon: <Lightbulb className="h-6 w-6 text-white" />, stat: "500+", text: "Partner Companies", i: 1, color: "from-purple-500 to-indigo-600" },
+            { icon: <Rocket className="h-6 w-6 text-white" />, stat: "98%", text: "Student Satisfaction", i: 2, color: "from-blue-500 to-highlite-accent" }
           ].map((item, index) => (
             <motion.div 
               key={index}
-              className="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col items-center text-center hover:shadow-lg hover:border-highlite-accent/30 transition-all duration-300 relative overflow-hidden group"
+              className="bg-white p-8 rounded-2xl border border-gray-100 flex flex-col items-center text-center hover:shadow-xl transition-all duration-500 relative overflow-hidden group"
               custom={item.i}
               variants={statsVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(32, 82, 149, 0.15)" }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-highlite-extralight/0 to-highlite-extralight/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <motion.div 
-                className="bg-highlite-extralight/30 p-4 rounded-full mb-4 relative z-10"
+                className={`absolute inset-x-0 -top-1 h-1 bg-gradient-to-r ${item.color}`} 
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ delay: 0.5 + index * 0.2, duration: 0.8 }}
+                viewport={{ once: true }}
+              />
+              
+              <motion.div 
+                className={`bg-gradient-to-br ${item.color} p-4 rounded-full mb-6 relative z-10`}
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 animate={floatAnimation}
               >
                 {item.icon}
+                <motion.div 
+                  className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
               </motion.div>
+              
               <motion.p 
-                className="font-bold text-highlite-primary text-3xl relative z-10"
+                className="font-bold text-highlite-primary text-4xl relative z-10 mb-2"
                 initial={{ opacity: 0, scale: 0.5 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 * index, duration: 0.5 }}
               >
-                {item.stat}
+                <motion.span
+                  animate={isInView ? { 
+                    opacity: [0, 1],
+                    y: [20, 0]
+                  } : {}}
+                  transition={{ duration: 0.8, delay: 0.5 + index * 0.2 }}
+                >
+                  {item.stat}
+                </motion.span>
               </motion.p>
-              <p className="text-gray-600 relative z-10">{item.text}</p>
+              
+              <p className="text-gray-600 relative z-10 font-medium">{item.text}</p>
               
               <motion.div
-                className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-highlite-accent/0 via-highlite-accent to-highlite-accent/0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"
+                className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-highlite-accent to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"
               ></motion.div>
+              
+              {/* Background decoration */}
+              <motion.div
+                className={`absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-gradient-to-br ${item.color} opacity-5 group-hover:opacity-10 transition-opacity`}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              />
             </motion.div>
           ))}
         </div>
