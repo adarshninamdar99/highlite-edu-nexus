@@ -108,7 +108,7 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white py-12 md:py-0">
+    <div className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white py-16 md:py-24 lg:py-32">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
@@ -138,6 +138,8 @@ const Hero: React.FC = () => {
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
+              width: `${Math.floor(Math.random() * 8) + 4}px`,
+              height: `${Math.floor(Math.random() * 8) + 4}px`,
             }}
             animate={{ 
               y: [0, -(Math.random() * 50) - 20, 0],
@@ -154,16 +156,16 @@ const Hero: React.FC = () => {
         ))}
       </div>
       
-      <div ref={containerRef} className="container mx-auto px-4 py-28 md:py-40">
+      <div ref={containerRef} className="container mx-auto px-4 pt-10 pb-20 md:pt-16 md:pb-28">
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-8 lg:gap-16 max-w-7xl mx-auto items-center"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
           {/* Left content - Text */}
-          <motion.div className="flex flex-col justify-center space-y-6 order-2 lg:order-1">
-            <motion.div variants={itemVariants} className="flex items-center">
+          <motion.div className="flex flex-col justify-center space-y-6 order-2 lg:order-1 text-center lg:text-left">
+            <motion.div variants={itemVariants} className="flex items-center justify-center lg:justify-start">
               <motion.span 
                 className="inline-block px-5 py-2 text-sm font-medium bg-gradient-to-r from-highlite-accent to-highlite-light text-white rounded-full shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(32, 82, 149, 0.3)" }}
@@ -186,15 +188,14 @@ const Hero: React.FC = () => {
             
             <motion.h1 
               variants={itemVariants}
-              className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-highlite-primary"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-highlite-primary leading-tight"
             >
-              <span className="inline-block mb-2">Prepare for your</span>{' '}
-              <br className="hidden sm:block" />
-              <span className="relative inline-block">
+              <span className="inline-block">Prepare for your</span>{' '}
+              <div className="h-14 sm:h-16 md:h-20 lg:h-24 relative inline-flex items-center justify-center lg:justify-start">
                 <AnimatePresence mode="wait">
                   <motion.span 
                     key={currentIndex} 
-                    className={`${heroColors[currentIndex]}`}
+                    className={`${heroColors[currentIndex]} absolute`}
                     initial={{ y: 20, opacity: 0 }}
                     animate={controls}
                     exit={{ y: -20, opacity: 0, transition: { duration: 0.3 } }}
@@ -208,20 +209,20 @@ const Hero: React.FC = () => {
                   animate={{ scaleX: 1 }}
                   transition={{ delay: 0.2, duration: 1.5, ease: "easeInOut" }}
                 />
-              </span>{' '}
-              <span className="inline-block mt-2">career today</span>
+              </div>{' '}
+              <span className="inline-block">career today</span>
             </motion.h1>
             
             <motion.p 
               variants={itemVariants}
-              className="text-xl text-gray-600 max-w-xl"
+              className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0"
             >
               AI-powered interview preparation, resume building, and job matching for the next generation of professionals.
             </motion.p>
             
             <motion.div 
               variants={itemVariants}
-              className="flex flex-wrap gap-4 pt-6"
+              className="flex flex-wrap gap-4 pt-6 justify-center lg:justify-start"
             >
               <Link to="/register">
                 <motion.div
@@ -257,7 +258,7 @@ const Hero: React.FC = () => {
             
             <motion.div 
               variants={itemVariants}
-              className="flex items-center gap-3 pt-8 text-gray-500"
+              className="flex items-center gap-3 pt-8 text-gray-500 justify-center lg:justify-start"
             >
               <div className="flex -space-x-2">
                 {[...Array(4)].map((_, i) => (
@@ -287,11 +288,11 @@ const Hero: React.FC = () => {
           
           {/* Right content - Image or animation */}
           <motion.div 
-            className="relative flex items-center justify-center order-1 lg:order-2"
+            className="relative flex items-center justify-center order-1 lg:order-2 mb-8 lg:mb-0"
             variants={itemVariants}
           >
             <motion.div
-              className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl"
+              className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl"
               initial="hidden"
               animate="visible"
               variants={imageRevealVariant}
@@ -361,17 +362,17 @@ const Hero: React.FC = () => {
             
             {/* Floating elements */}
             <motion.div 
-              className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-xl backdrop-blur-lg text-highlite-primary px-8 py-4 rounded-full text-sm font-medium border border-highlite-extralight/30 flex items-center gap-3 z-10"
+              className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-xl backdrop-blur-lg text-highlite-primary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-xs sm:text-sm font-medium border border-highlite-extralight/30 flex items-center gap-3 z-10 max-w-[90%] sm:max-w-[80%]"
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1.5, duration: 0.5 }}
             >
               <motion.div 
-                className="w-3 h-3 bg-green-500 rounded-full"
+                className="w-3 h-3 bg-green-500 rounded-full shrink-0"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               ></motion.div>
-              Real-time feedback from AI-powered mock interviews
+              <span className="truncate">Real-time feedback from AI-powered mock interviews</span>
             </motion.div>
           </motion.div>
         </motion.div>
